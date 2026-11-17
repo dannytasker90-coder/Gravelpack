@@ -14,8 +14,8 @@
   <style>
     :root {
       --bg-base: #090d16;
-      --glass-bg: rgba(15, 23, 42, 0.82);
-      --glass-border: rgba(255, 255, 255, 0.13);
+      --glass-bg: rgba(15, 23, 42, 0.84);
+      --glass-border: rgba(255, 255, 255, 0.14);
       --glass-highlight: rgba(255, 255, 255, 0.07);
       --accent: #f59e0b;
       --accent-glow: rgba(245, 158, 11, 0.35);
@@ -191,6 +191,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
     }
 
     .room-trigger {
@@ -209,33 +210,57 @@
     }
 
     .rider-count {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-muted);
     }
 
-    .status-pills {
+    .hud-right-group {
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .export-btn {
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .export-btn:active {
+      transform: scale(0.95);
+    }
+
+    .status-pills {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
     .pill {
       display: flex;
       align-items: center;
       gap: 5px;
-      background: rgba(2, 6, 23, 0.6);
+      background: rgba(2, 6, 23, 0.65);
       border: 1px solid var(--glass-border);
-      padding: 4px 9px;
+      padding: 2px 8px;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
       letter-spacing: 0.04em;
     }
 
     .dot {
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: var(--red);
       box-shadow: 0 0 8px var(--red);
@@ -282,32 +307,45 @@
       display: none;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      background: rgba(239, 68, 68, 0.92);
+      gap: 8px;
+      background: rgba(239, 68, 68, 0.94);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.25);
       color: #fff;
-      padding: 10px 14px;
+      padding: 9px 12px;
       border-radius: 16px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
     }
 
     .alert-banner.pin-style {
-      background: rgba(14, 165, 233, 0.92);
+      background: rgba(14, 165, 233, 0.94);
       box-shadow: 0 10px 25px rgba(14, 165, 233, 0.35);
+    }
+
+    .alert-banner.info-style {
+      background: rgba(245, 158, 11, 0.95);
+      color: #090d16;
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
     }
 
     .alert-banner.show {
       display: flex;
     }
 
-    .banner-close {
-      background: rgba(0, 0, 0, 0.25);
+    .banner-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .banner-btn {
+      background: rgba(0, 0, 0, 0.28);
       border: none;
       color: #fff;
-      padding: 4px 9px;
+      padding: 5px 9px;
       border-radius: 8px;
       font-size: 11px;
       font-weight: 800;
@@ -371,7 +409,7 @@
       color: var(--accent);
     }
 
-    /* Schwebende Seiten-Buttons (Kartenstil & Gruppen-Zoom) */
+    /* Schwebende Seiten-Buttons */
     #side-controls {
       position: fixed;
       right: 12px;
@@ -632,7 +670,7 @@
     <div class="login-card">
       <div class="brand-badge">⚡ GravelPack Pro</div>
       <h1>Group Ride Cockpit</h1>
-      <p>Live-Tracking, Sammelpunkte, Status-Signale & GPX-Navigation für deine Gravel-Gruppe.</p>
+      <p>Komoot- & Strava-kompatibler GPX-Sync, Track-Aufzeichnung, Sammelpunkte & Live-Gruppenradar.</p>
 
       <div class="input-group">
         <label for="rider-name">Dein Fahrername</label>
@@ -663,9 +701,15 @@
           <div class="rider-count" id="display-count">1 Fahrer aktiv · Liste</div>
         </div>
 
-        <div class="status-pills">
-          <div class="pill"><span class="dot" id="dot-live"></span>LIVE</div>
-          <div class="pill"><span class="dot" id="dot-gps"></span>GPS</div>
+        <div class="hud-right-group">
+          <button class="export-btn" id="btn-export-gpx" title="Aufgezeichnete Tour für Strava/Komoot speichern">
+            ⬇ GPX (<span id="track-pts-count">0</span>)
+          </button>
+
+          <div class="status-pills">
+            <div class="pill"><span class="dot" id="dot-live"></span>LIVE</div>
+            <div class="pill"><span class="dot" id="dot-gps"></span>GPS</div>
+          </div>
         </div>
       </div>
 
@@ -686,16 +730,25 @@
       </div>
     </div>
 
-    <!-- Banner für Sammelpunkt -->
+    <!-- Banner für Sammelpunkt inkl. Externer Navigation -->
     <div class="alert-banner pin-style" id="pin-banner">
       <span id="pin-banner-text">📍 Treffpunkt gesetzt</span>
-      <button class="banner-close" id="clear-pin-btn">Löschen</button>
+      <div class="banner-actions">
+        <button class="banner-btn" id="nav-pin-btn">🧭 Navi</button>
+        <button class="banner-btn" id="clear-pin-btn">✕</button>
+      </div>
+    </div>
+
+    <!-- Banner für Gruppen-GPX-Sync -->
+    <div class="alert-banner info-style" id="route-sync-banner">
+      <span id="route-sync-text">🗺️ Neue Gruppen-Route geladen</span>
+      <button class="banner-btn" style="background: rgba(0,0,0,0.75);" onclick="document.getElementById('route-sync-banner').classList.remove('show')">OK</button>
     </div>
 
     <!-- Banner für Pannen/Status-Meldung -->
     <div class="alert-banner" id="rider-alert-banner">
       <span id="rider-alert-text">⚠️ Statusmeldung</span>
-      <button class="banner-close" onclick="document.getElementById('rider-alert-banner').classList.remove('show')">OK</button>
+      <button class="banner-btn" onclick="document.getElementById('rider-alert-banner').classList.remove('show')">OK</button>
     </div>
 
     <!-- Ausklappbare Fahrerliste -->
@@ -771,15 +824,20 @@
     let channel = null;
     let wakeLock = null;
     let gpxLayer = null;
+    let sharedRoutePoints = null;
     let meetingPinMarker = null;
     let meetingPinData = null;
+
+    // Eigene Fahrtaufzeichnung für Strava/Komoot GPX-Export
+    const recordedTrack = []; // [{ lat, lng, ele, time }]
+    let recordedPolyline = null;
 
     const riders = {};
 
     document.getElementById("rider-name").value = localStorage.getItem("gp_name") || "";
     document.getElementById("group-code").value = localStorage.getItem("gp_room") || "";
 
-    // Karten-Layer definieren (Topo, Satellit, Dark)
+    // Karten-Layer
     const baseLayers = [
       {
         name: "Topo",
@@ -799,6 +857,13 @@
     const map = L.map("map", { zoomControl: false }).setView([48.137, 11.576], 13);
     baseLayers[0].layer.addTo(map);
 
+    recordedPolyline = L.polyline([], {
+      color: "#38bdf8",
+      weight: 4,
+      opacity: 0.75,
+      dashArray: "6, 8"
+    }).addTo(map);
+
     document.getElementById("btn-layer").addEventListener("click", () => {
       map.removeLayer(baseLayers[currentLayerIdx].layer);
       currentLayerIdx = (currentLayerIdx + 1) % baseLayers.length;
@@ -811,7 +876,6 @@
       document.getElementById("btn-center").classList.remove("active");
     });
 
-    // Distanz in Metern
     function getMeters(lat1, lon1, lat2, lon2) {
       const R = 6371e3;
       const p1 = lat1 * Math.PI / 180;
@@ -862,7 +926,7 @@
       });
 
       meetingPinMarker = L.marker([data.lat, data.lng], { icon }).addTo(map);
-      document.getElementById("pin-banner-text").textContent = `📍 Treffpunkt von ${data.by}${distInfo}`;
+      document.getElementById("pin-banner-text").textContent = `📍 Treffpunkt (${data.by})${distInfo}`;
       document.getElementById("pin-banner").classList.add("show");
 
       if (broadcast && channel) {
@@ -883,6 +947,92 @@
     }
 
     document.getElementById("clear-pin-btn").addEventListener("click", () => clearMeetingPin(true));
+
+    // Externe Navigation zum Treffpunkt öffnen (Komoot / Apple Maps / Google Maps)
+    document.getElementById("nav-pin-btn").addEventListener("click", () => {
+      if (!meetingPinData) return;
+      const { lat, lng } = meetingPinData;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const url = isIOS
+        ? `https://maps.apple.com/?daddr=${lat},${lng}&dirflg=w`
+        : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=bicycling`;
+      window.open(url, "_blank");
+    });
+
+    // GPX-Route zeichnen & optional an Gruppe senden
+    function drawGroupRoute(pts, fitMap = false) {
+      if (!pts || pts.length === 0) return;
+      sharedRoutePoints = pts;
+      if (gpxLayer) map.removeLayer(gpxLayer);
+
+      gpxLayer = L.polyline(pts, {
+        color: "#f59e0b",
+        weight: 5,
+        opacity: 0.92,
+        lineJoin: "round"
+      }).addTo(map);
+
+      document.getElementById("btn-gpx").classList.add("active");
+      document.getElementById("label-gpx").textContent = "Route Aktiv";
+
+      if (fitMap) {
+        followMe = false;
+        document.getElementById("btn-center").classList.remove("active");
+        map.fitBounds(gpxLayer.getBounds(), { padding: [55, 55] });
+      }
+    }
+
+    // Track-Punkte für Live-Broadcast sinnvoll ausdünnen (max. ~220 Punkte)
+    function simplifyRoute(pts, maxPts = 220) {
+      if (pts.length <= maxPts) return pts.map(p => [Number(p[0].toFixed(5)), Number(p[1].toFixed(5))]);
+      const step = Math.ceil(pts.length / maxPts);
+      const reduced = [];
+      for (let i = 0; i < pts.length; i += step) {
+        reduced.push([Number(pts[i][0].toFixed(5)), Number(pts[i][1].toFixed(5))]);
+      }
+      const last = pts[pts.length - 1];
+      reduced.push([Number(last[0].toFixed(5)), Number(last[1].toFixed(5))]);
+      return reduced;
+    }
+
+    // GPX-Export für Strava & Komoot generieren
+    document.getElementById("btn-export-gpx").addEventListener("click", () => {
+      if (recordedTrack.length < 2) {
+        alert("Es wurden noch zu wenige GPS-Punkte aufgezeichnet. Bewege dich zuerst ein Stück draußen mit aktivem GPS.");
+        return;
+      }
+
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const trkpts = recordedTrack.map(pt => {
+        const eleTag = typeof pt.ele === "number" ? `<ele>${pt.ele.toFixed(1)}</ele>` : "";
+        return `      <trkpt lat="${pt.lat.toFixed(6)}" lon="${pt.lng.toFixed(6)}">${eleTag}<time>${pt.time}</time></trkpt>`;
+      }).join("\n");
+
+      const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="GravelPack Pro" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>GravelPack Tour ${dateStr}</name>
+    <time>${recordedTrack[0].time}</time>
+  </metadata>
+  <trk>
+    <name>GravelPack #${roomCode} (${myName})</name>
+    <type>cycling</type>
+    <trkseg>
+${trkpts}
+    </trkseg>
+  </trk>
+</gpx>`;
+
+      const blob = new Blob([gpxContent], { type: "application/gpx+xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `GravelPack_${roomCode}_${dateStr}.gpx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
 
     // Marker mit Fahrtrichtung & Status aktualisieren
     function updateRiderMarker(id, data) {
@@ -925,7 +1075,6 @@
 
       riders[id] = { ...riders[id], ...data, updatedAt: Date.now() };
 
-      // Alert-Banner bei neuem Status eines Kollegen zeigen
       if (!isMe && data.status && data.status !== prevStatus) {
         document.getElementById("rider-alert-text").textContent = `${data.name}: ${data.status}`;
         document.getElementById("rider-alert-banner").classList.add("show");
@@ -964,7 +1113,6 @@
       document.getElementById("rider-drawer").classList.remove("open");
     };
 
-    // Alle Fahrer einpassen
     document.getElementById("btn-fit-all").addEventListener("click", () => {
       const coords = Object.values(riders).map(r => [r.lat, r.lng]);
       if (meetingPinData) coords.push([meetingPinData.lat, meetingPinData.lng]);
@@ -975,7 +1123,6 @@
       }
     });
 
-    // Schnell-Status setzen
     document.getElementById("btn-status").addEventListener("click", () => {
       document.getElementById("status-menu").classList.toggle("open");
     });
@@ -1050,11 +1197,28 @@
         .on("broadcast", { event: "pin_clear" }, () => {
           clearMeetingPin(false);
         })
+        .on("broadcast", { event: "route_sync" }, ({ payload }) => {
+          if (payload && Array.isArray(payload.pts)) {
+            drawGroupRoute(payload.pts, false);
+            document.getElementById("route-sync-text").textContent = `🗺️ ${payload.by} hat eine Komoot/GPX-Route geteilt`;
+            document.getElementById("route-sync-banner").classList.add("show");
+          }
+        })
+        .on("broadcast", { event: "request_state" }, () => {
+          // Nachzügler erhalten aktive Route & Treffpunkt automatisch
+          if (sharedRoutePoints) {
+            channel.send({ type: "broadcast", event: "route_sync", payload: { by: myName, pts: sharedRoutePoints } });
+          }
+          if (meetingPinData) {
+            channel.send({ type: "broadcast", event: "pin", payload: meetingPinData });
+          }
+        })
         .subscribe((status) => {
           const liveDot = document.getElementById("dot-live");
           if (status === "SUBSCRIBED") {
             liveDot.classList.add("online");
             broadcastPosition();
+            channel.send({ type: "broadcast", event: "request_state", payload: {} });
           } else {
             liveDot.classList.remove("online");
           }
@@ -1068,20 +1232,40 @@
             const kmh = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
             document.getElementById("speed-val").textContent = kmh;
 
-            if (typeof pos.coords.altitude === "number" && !isNaN(pos.coords.altitude)) {
-              document.getElementById("alt-val").textContent = Math.round(pos.coords.altitude);
+            const alt = typeof pos.coords.altitude === "number" && !isNaN(pos.coords.altitude) ? pos.coords.altitude : null;
+            if (alt !== null) {
+              document.getElementById("alt-val").textContent = Math.round(alt);
             }
 
-            // Tageskilometer aufsummieren (nur bei echter Bewegung > 5m und guter Genauigkeit)
-            if (lastTrackPos && (!pos.coords.accuracy || pos.coords.accuracy < 45)) {
-              const moved = getMeters(lastTrackPos.lat, lastTrackPos.lng, pos.coords.latitude, pos.coords.longitude);
-              if (moved > 5 && moved < 250) {
-                totalDistanceMeters += moved;
-                document.getElementById("dist-val").textContent = (totalDistanceMeters / 1000).toFixed(1);
+            // Tageskilometer & GPX-Track aufzeichnen (bei guter Genauigkeit & echter Bewegung)
+            if (!pos.coords.accuracy || pos.coords.accuracy < 50) {
+              if (lastTrackPos) {
+                const moved = getMeters(lastTrackPos.lat, lastTrackPos.lng, pos.coords.latitude, pos.coords.longitude);
+                if (moved > 5 && moved < 250) {
+                  totalDistanceMeters += moved;
+                  document.getElementById("dist-val").textContent = (totalDistanceMeters / 1000).toFixed(1);
+                  lastTrackPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
+                  recordedTrack.push({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                    ele: alt,
+                    time: new Date().toISOString()
+                  });
+                  recordedPolyline.addLatLng([pos.coords.latitude, pos.coords.longitude]);
+                  document.getElementById("track-pts-count").textContent = recordedTrack.length;
+                }
+              } else {
                 lastTrackPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                recordedTrack.push({
+                  lat: pos.coords.latitude,
+                  lng: pos.coords.longitude,
+                  ele: alt,
+                  time: new Date().toISOString()
+                });
+                recordedPolyline.addLatLng([pos.coords.latitude, pos.coords.longitude]);
+                document.getElementById("track-pts-count").textContent = recordedTrack.length;
               }
-            } else if (!lastTrackPos) {
-              lastTrackPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
             }
 
             myPos = {
@@ -1132,6 +1316,7 @@
       }
     });
 
+    // GPX-Route laden & automatisch an Gruppe verteilen
     document.getElementById("btn-gpx").addEventListener("click", () => {
       document.getElementById("gpx-input").click();
     });
@@ -1149,19 +1334,16 @@
         ]);
 
         if (pts.length > 0) {
-          if (gpxLayer) map.removeLayer(gpxLayer);
-          gpxLayer = L.polyline(pts, {
-            color: "#f59e0b",
-            weight: 5,
-            opacity: 0.9,
-            lineJoin: "round"
-          }).addTo(map);
-
-          followMe = false;
-          document.getElementById("btn-center").classList.remove("active");
-          document.getElementById("btn-gpx").classList.add("active");
-          document.getElementById("label-gpx").textContent = "Route Aktiv";
-          map.fitBounds(gpxLayer.getBounds(), { padding: [55, 55] });
+          drawGroupRoute(pts, true);
+          const compactPts = simplifyRoute(pts, 220);
+          sharedRoutePoints = compactPts;
+          if (channel) {
+            channel.send({
+              type: "broadcast",
+              event: "route_sync",
+              payload: { by: myName, pts: compactPts }
+            });
+          }
         } else {
           alert("Keine gültigen Koordinaten in dieser GPX-Datei gefunden.");
         }
