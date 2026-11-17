@@ -438,7 +438,7 @@
       color: #fca5a5;
     }
 
-    /* Ausklappbare Fahrer-Liste */
+    /* Ausklappbare Fahrer-Liste & Ausloggen */
     #rider-drawer {
       display: none;
       background: var(--glass-bg);
@@ -448,12 +448,20 @@
       border-radius: var(--radius-lg);
       padding: 10px;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
-      max-height: 200px;
-      overflow-y: auto;
+      flex-direction: column;
+      gap: 8px;
     }
 
     #rider-drawer.open {
-      display: block;
+      display: flex;
+    }
+
+    #rider-list-items {
+      max-height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     .rider-item {
@@ -463,12 +471,7 @@
       padding: 10px 12px;
       border-radius: 12px;
       background: var(--glass-highlight);
-      margin-bottom: 6px;
       cursor: pointer;
-    }
-
-    .rider-item:last-child {
-      margin-bottom: 0;
     }
 
     .rider-info {
@@ -493,6 +496,26 @@
       font-size: 12px;
       font-weight: 700;
       color: var(--accent);
+    }
+
+    .logout-btn {
+      width: 100%;
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      border-radius: 12px;
+      padding: 11px;
+      color: #fca5a5;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .logout-btn:active {
+      transform: scale(0.98);
     }
 
     /* Routen-Planer Panel mit Ortseingabe */
@@ -536,7 +559,6 @@
       color: var(--text-main);
     }
 
-    /* Start -> Ziel Suchleiste */
     .route-search-box {
       display: flex;
       flex-direction: column;
@@ -911,7 +933,7 @@
             <span id="display-room">#GRVL</span>
             <span style="font-size: 11px; opacity: 0.7;">▼</span>
           </div>
-          <div class="rider-count" id="display-count">1 Fahrer aktiv · Liste</div>
+          <div class="rider-count" id="display-count">1 Fahrer aktiv · Menü</div>
         </div>
 
         <div class="hud-right-group">
@@ -978,8 +1000,11 @@
       <button class="banner-btn" onclick="document.getElementById('rider-alert-banner').classList.remove('show')">OK</button>
     </div>
 
-    <!-- Ausklappbare Fahrerliste -->
-    <div id="rider-drawer"></div>
+    <!-- Ausklappbare Fahrerliste & Ausloggen -->
+    <div id="rider-drawer">
+      <div id="rider-list-items"></div>
+      <button class="logout-btn" id="btn-logout">🚪 Tour verlassen / Ausloggen</button>
+    </div>
   </div>
 
   <!-- Schwebende Seiten-Buttons -->
@@ -1003,7 +1028,7 @@
     <button class="status-choice" onclick="setMyStatus('')">✅ Alles OK (Löschen)</button>
   </div>
 
-  <!-- Routen-Planer Panel (Mein Standort -> Zielort + Karte tippen) -->
+  <!-- Routen-Planer Panel -->
   <div id="planner-panel">
     <div class="planner-top">
       <span class="planner-title">🧭 Route berechnen & planen</span>
@@ -1086,6 +1111,8 @@
     let myStatus = "";
     let followMe = true;
     let channel = null;
+    let geoWatchId = null;
+    let heartbeatTimer = null;
     let wakeLock = null;
     let gpxLayer = null;
     let sharedRoutePoints = null;
@@ -1224,7 +1251,6 @@ ${trkpts}
       recalculatePlannedRoute(false);
     });
 
-    // Zielort suchen & Route ab "Mein Standort" berechnen
     async function searchAndRouteDestination() {
       const query = document.getElementById("dest-input").value.trim();
       if (!query) {
@@ -1237,7 +1263,6 @@ ${trkpts}
       hintEl.textContent = `Suche „${query}“...`;
 
       try {
-        // Bevorzugt in der Nähe des aktuellen Standorts suchen
         const viewbox = `${startPos.lng - 0.8},${startPos.lat + 0.8},${startPos.lng + 0.8},${startPos.lat - 0.8}`;
         const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&viewbox=${viewbox}&q=${encodeURIComponent(query)}`;
         const res = await fetch(url, { headers: { "Accept-Language": "de" } });
@@ -1252,7 +1277,6 @@ ${trkpts}
         const destLng = parseFloat(results[0].lon);
         const shortName = results[0].display_name.split(",")[0];
 
-        // Bisherige Plan-Punkte leeren und Start (Mein Standort) + Ziel setzen
         planWaypoints.forEach(wp => map.removeLayer(wp.marker));
         planWaypoints = [];
 
@@ -1276,7 +1300,6 @@ ${trkpts}
 
     map.on("click", (e) => {
       if (!plannerMode) return;
-      // Wenn noch kein Startpunkt gesetzt ist und GPS aktiv ist, automatisch "Mein Standort" als Punkt 1 nehmen
       if (planWaypoints.length === 0 && myPos) {
         addPlanWaypoint(myPos.lat, myPos.lng, false);
       }
@@ -1595,11 +1618,11 @@ ${trkpts}
     }
 
     function renderRiderList() {
-      const drawer = document.getElementById("rider-drawer");
+      const listContainer = document.getElementById("rider-list-items");
       const ids = Object.keys(riders);
-      document.getElementById("display-count").textContent = `${ids.length} Fahrer aktiv · Details`;
+      document.getElementById("display-count").textContent = `${ids.length} Fahrer aktiv · Menü`;
 
-      drawer.innerHTML = ids.map(id => {
+      listContainer.innerHTML = ids.map(id => {
         const r = riders[id];
         const isMe = id === myId;
         const dist = isMe ? "Du selbst" : (myPos ? `${formatDist(getMeters(myPos.lat, myPos.lng, r.lat, r.lng))} entfernt` : "Aktiv");
@@ -1669,6 +1692,80 @@ ${trkpts}
       channel.send({ type: "broadcast", event: "pos", payload });
     }
 
+    // ==========================
+    // AUSLOGGEN / TOUR VERLASSEN
+    // ==========================
+    document.getElementById("btn-logout").addEventListener("click", async () => {
+      if (!confirm("Möchtest du die aktuelle Gruppen-Tour wirklich verlassen?")) return;
+
+      // Kollegen sofort über Austritt informieren & Kanal schließen
+      if (channel) {
+        await channel.send({ type: "broadcast", event: "leave", payload: { id: myId } });
+        supabaseClient.removeChannel(channel);
+        channel = null;
+      }
+
+      // GPS-Überwachung & Timer stoppen
+      if (geoWatchId !== null) {
+        navigator.geolocation.clearWatch(geoWatchId);
+        geoWatchId = null;
+      }
+      if (heartbeatTimer !== null) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+      }
+
+      // Display-Sperre wieder freigeben
+      if (wakeLock) {
+        try { await wakeLock.release(); } catch (e) {}
+        wakeLock = null;
+      }
+
+      // Marker & Karten-Overlays zurücksetzen
+      Object.keys(riders).forEach(id => {
+        if (riders[id].marker) map.removeLayer(riders[id].marker);
+        delete riders[id];
+      });
+      if (gpxLayer) { map.removeLayer(gpxLayer); gpxLayer = null; }
+      clearMeetingPin(false);
+      planWaypoints.forEach(wp => map.removeLayer(wp.marker));
+      planWaypoints = [];
+      planRouteCoords = [];
+      planPolyline.setLatLngs([]);
+      recordedTrack = [];
+      totalDistanceMeters = 0;
+      lastTrackPos = null;
+      myPos = null;
+      myStatus = "";
+      sharedRoutePoints = null;
+      recordedPolyline.setLatLngs([]);
+
+      // UI zurück auf Startzustand
+      document.getElementById("dist-val").textContent = "0.0";
+      document.getElementById("speed-val").textContent = "0";
+      document.getElementById("alt-val").textContent = "—";
+      document.getElementById("dot-live").classList.remove("online");
+      document.getElementById("dot-gps").classList.remove("online");
+      document.getElementById("btn-gpx").classList.remove("active");
+      document.getElementById("label-gpx").textContent = "GPX Laden";
+      document.getElementById("btn-status").classList.remove("alert-active");
+      document.getElementById("label-status").textContent = "Status";
+      document.getElementById("btn-wake").classList.remove("active");
+      document.getElementById("label-wake").textContent = "Display An";
+
+      document.getElementById("rider-drawer").classList.remove("open");
+      document.getElementById("rec-drawer").classList.remove("open");
+      document.getElementById("status-menu").classList.remove("open");
+      document.getElementById("planner-panel").classList.remove("open");
+      document.getElementById("rider-alert-banner").classList.remove("show");
+      document.getElementById("route-sync-banner").classList.remove("show");
+
+      document.getElementById("hud-top").style.display = "none";
+      document.getElementById("hud-bottom").style.display = "none";
+      document.getElementById("side-controls").style.display = "none";
+      document.getElementById("login-screen").style.display = "flex";
+    });
+
     // Tour starten
     document.getElementById("join-btn").addEventListener("click", () => {
       const nameInput = document.getElementById("rider-name").value.trim();
@@ -1689,6 +1786,7 @@ ${trkpts}
       document.getElementById("hud-top").style.display = "flex";
       document.getElementById("hud-bottom").style.display = "flex";
       document.getElementById("side-controls").style.display = "flex";
+      updateRecUI();
 
       setTimeout(() => map.invalidateSize(), 150);
 
@@ -1700,6 +1798,13 @@ ${trkpts}
         .on("broadcast", { event: "pos" }, ({ payload }) => {
           if (payload && payload.id !== myId) {
             updateRiderMarker(payload.id, payload);
+          }
+        })
+        .on("broadcast", { event: "leave" }, ({ payload }) => {
+          if (payload && payload.id && riders[payload.id]) {
+            map.removeLayer(riders[payload.id].marker);
+            delete riders[payload.id];
+            renderRiderList();
           }
         })
         .on("broadcast", { event: "pin" }, ({ payload }) => {
@@ -1735,7 +1840,7 @@ ${trkpts}
         });
 
       if ("geolocation" in navigator) {
-        navigator.geolocation.watchPosition(
+        geoWatchId = navigator.geolocation.watchPosition(
           (pos) => {
             document.getElementById("dot-gps").classList.add("online");
 
@@ -1800,7 +1905,7 @@ ${trkpts}
         );
       }
 
-      setInterval(() => {
+      heartbeatTimer = setInterval(() => {
         broadcastPosition();
         const now = Date.now();
         Object.keys(riders).forEach(id => {
