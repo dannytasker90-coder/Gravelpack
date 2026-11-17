@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1e293b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>GravelPack – Live Group Ride</title>
+
+  <!-- Leaflet CSS (Kartenbibliothek) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --panel-bg: rgba(30, 41, 59, 0.94);
+      --accent: #f97316; /* Signal-Orange für Gravel */
+      --accent-hover: #ea580c;
+      --green: #22c55e;
+      --red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+    }
+
+    /* --- LOGIN OVERLAY --- */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-card {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 28px 22px;
+      max-width: 420px;
+      width: 100%;
+      margin: 0 auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .logo-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 100%;
+      height: 54px;
+      border-radius: 12px;
+      border: 2px solid #334155;
+      background: #0f172a;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      padding: 0 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--accent);
+    }
+
+    .btn-primary {
+      width: 100%;
+      height: 58px;
+      border-radius: 14px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
+      transition: transform 0.1s, background 0.2s;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      background: var(--accent-hover);
+    }
+
+    /* --- KARTE --- */
+    #map {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: #e2e8f0;
+    }
+
+    /* --- STATUSLEISTE OBEN --- */
+    .top-bar {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      left: 12px;
+      right: 12px;
+      z-index: 1000;
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .room-badge {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .room-code {
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+
+    .rider-count {
+      font-size: 13px;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .status-pills {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .dot.active {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    /* --- STEUERUNG UNTEN (HANDSCHUH-OPTIMIERT) --- */
+    .bottom-controls {
+      position: fixed;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      left: 12px;
+      right: 12px;
+      z-index: 1000;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .control-btn {
+      height: 64px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      transition: transform 0.1s, background 0.2s, border-color 0.2s;
+    }
+
+    .control-btn:active {
+      transform: scale(0.96);
+    }
+
+    .control-btn.active {
+      background: var(--accent);
+      border-color: #fdba74;
+      color: #fff;
+    }
+
+    .control-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* --- FAHRER-MARKER AUF DER KARTE --- */
+    .rider-marker-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: translate(-50%, -50%);
+    }
+
+    .rider-label {
+      background: rgba(15, 23, 42, 0.92);
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      margin-bottom: 4px;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .rider-time {
+      display: block;
+      font-size: 10px;
+      font-weight: 500;
+      color: #cbd5e1;
+    }
+
+    .rider-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Toast Nachricht */
+    #toast {
+      position: fixed;
+      top: 84px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1500;
+      background: #1e293b;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--accent);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    #toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. LOGIN / GRUPPEN-RAUM -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="logo-title">
+        <span>🚵‍♂️</span> GravelPack
+      </div>
+      <p class="logo-subtitle">Live-GPS & GPX-Tracking für eure Ausfahrt.</p>
+
+      <div class="input-group">
+        <label for="rider-name">Dein Name / Spitzname</label>
+        <input type="text" id="rider-name" placeholder="z. B. Max" maxlength="18" autocomplete="off" />
+      </div>
+
+      <div class="input-group">
+        <label for="group-code">Gruppen-Code</label>
+        <input type="text" id="group-code" placeholder="z. B. SONNTAGSRUNDE" maxlength="24" style="text-transform: uppercase;" autocomplete="off" />
+      </div>
+
+      <button class="btn-primary" id="join-btn">Tour starten</button>
+    </div>
+  </div>
+
+  <!-- 2. STATUSLEISTE OBEN -->
+  <div class="top-bar" id="top-bar" style="display: none;">
+    <div class="room-badge">
+      <span class="room-code" id="display-room">#GRUPPE</span>
+      <span class="rider-count" id="display-count">1 Fahrer aktiv</span>
+    </div>
+    <div class="status-pills">
+      <div class="pill" title="Verbindung zur Gruppe">
+        <span class="dot" id="net-dot"></span>
+        <span>LIVE</span>
+      </div>
+      <div class="pill" title="GPS Signal">
+        <span class="dot" id="gps-dot"></span>
+        <span>GPS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST MELDUNG -->
+  <div id="toast">Nachricht</div>
+
+  <!-- 3. KARTE -->
+  <div id="map"></div>
+
+  <!-- 4. HANDSCHUH-BUTTONS UNTEN -->
+  <div class="bottom-controls" id="bottom-controls" style="display: none;">
+    <!-- GPX Upload -->
+    <button class="control-btn" id="gpx-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <span>GPX Route</span>
+    </button>
+    <input type="file" id="gpx-input" accept=".gpx,application/gpx+xml,text/xml" style="display: none;" />
+
+    <!-- Standort Zentrieren -->
+    <button class="control-btn active" id="center-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+      </svg>
+      <span>Zentrieren</span>
+    </button>
+
+    <!-- Display Wake Lock -->
+    <button class="control-btn" id="wakelock-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      <span id="wakelock-text">Display An</span>
+    </button>
+  </div>
+
+  <!-- Leaflet JS & Supabase JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    // =========================================================================
+    // 1. SUPABASE KONFIGURATION (BEREITS EINGETRAGEN)
+    // =========================================================================
+    const SUPABASE_URL = "https://bncrjdwqgptmoedfckce.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_-tOGnrHsuv8vSYI284PW-w_TvmzvQwN";
+
+    // =========================================================================
+    // 2. DYNAMISCHES PWA-MANIFEST (DAMIT DIE APP INSTALLIERBAR IST)
+    // =========================================================================
+    (function setupPWA() {
+      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#0f172a"/><circle cx="256" cy="256" r="140" fill="none" stroke="#f97316" stroke-width="36"/><circle cx="256" cy="256" r="45" fill="#22c55e"/></svg>`;
+      const iconUrl = "data:image/svg+xml;base64," + btoa(svgIcon);
+      const manifest = {
+        name: "GravelPack Live Group Ride",
+        short_name: "GravelPack",
+        start_url: ".",
+        display: "standalone",
+        background_color: "#0f172a",
+        theme_color: "#1e293b",
+        icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }]
+      };
+      const link = document.createElement("link");
+      link.rel = "manifest";
+      link.href = "data:application/manifest+json;charset=utf-8," + encodeURIComponent(JSON.stringify(manifest));
+      document.head.appendChild(link);
+    })();
+
+    // =========================================================================
+    // 3. APP-STATUS & VARIABLEN
+    // =========================================================================
+    const RIDER_COLORS = ["#f97316", "#3b82f6", "#10b981", "#a855f7", "#ec4899", "#eab308", "#06b6d4"];
+    const myId = crypto.randomUUID ? crypto.randomUUID() : "rider_" + Math.random().toString(36).slice(2);
+    const myColor = RIDER_COLORS[Math.floor(Math.random() * RIDER_COLORS.length)];
+
+    let myName = "";
+    let groupCode = "";
+    let myCoords = null; // { lat, lng }
+    let autoCenter = true;
+    let wakeLock = null;
+
+    let map = null;
+    let gpxLayer = null;
+    let supabaseClient = null;
+    let roomChannel = null;
+
+    // Speichert alle Fahrer inkl. mir selbst: { [id]: { name, color, lat, lng, lastSeen, marker } }
+    const riders = {};
+
+    // =========================================================================
+    // 4. HILFSFUNKTIONEN
+    // =========================================================================
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    function formatTimeAgo(timestamp) {
+      const diffSec = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+      if (diffSec < 5) return "gerade eben";
+      if (diffSec < 60) return `vor ${diffSec} Sek.`;
+      const diffMin = Math.floor(diffSec / 60);
+      return `vor ${diffMin} Min.`;
+    }
+
+    // Gespeicherte Eingaben beim Laden wiederherstellen
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedName = localStorage.getItem("gp_name");
+      const savedGroup = localStorage.getItem("gp_group");
+      if (savedName) document.getElementById("rider-name").value = savedName;
+      if (savedGroup) document.getElementById("group-code").value = savedGroup;
+    });
+
+    // =========================================================================
+    // 5. KARTE INITIALISIEREN (OpenTopoMap für Schotter- & Waldwege)
+    // =========================================================================
+    function initMap() {
+      map = L.map("map", {
+        zoomControl: false // Pinch-to-Zoom auf dem Handy
+      }).setView([51.1657, 10.4515], 6);
+
+      // OpenTopoMap zeigt Waldwege, Höhenlinien und Trails perfekt an
+      const openTopo = L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
+        maxZoom: 17,
+        attribution: "Kartendaten: © OpenStreetMap, SRTM | Darstellung: © OpenTopoMap"
+      });
+
+      // Fallback OpenStreetMap
+      const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "© OpenStreetMap"
+      });
+
+      openTopo.addTo(map);
+      L.control.layers({ "Gravel / Topo": openTopo, "Standard Karte": osm }, null, { position: "topright" }).addTo(map);
+
+      // Wenn der Nutzer die Karte manuell verschiebt, Auto-Zentrieren deaktivieren
+      map.on("dragstart", () => {
+        autoCenter = false;
+        document.getElementById("center-btn").classList.remove("active");
+      });
+    }
+
+    // =========================================================================
+    // 6. MARKER & FAHRER-VERWALTUNG AUF DER KARTE
+    // =========================================================================
+    function updateRiderOnMap(id, data) {
+      const isMe = id === myId;
+      const labelText = isMe ? `${data.name} (Du)` : data.name;
+      const timeText = isMe ? "Live" : formatTimeAgo(data.lastSeen);
+
+      const html = `
+        <div class="rider-marker-wrapper">
+          <div class="rider-label" style="border-color: ${data.color}">
+            ${labelText}
+            <span class="rider-time" id="time-${id}">${timeText}</span>
+          </div>
+          <div class="rider-dot" style="background-color: ${data.color};"></div>
+        </div>
+      `;
+
+      const icon = L.divIcon({
+        html: html,
+        className: "",
+        iconSize: [0, 0]
+      });
+
+      if (riders[id] && riders[id].marker) {
+        riders[id].marker.setLatLng([data.lat, data.lng]);
+        riders[id].marker.setIcon(icon);
+      } else {
+        const marker = L.marker([data.lat, data.lng], {
+          icon: icon,
+          zIndexOffset: isMe ? 1000 : 500
+        }).addTo(map);
+        data.marker = marker;
+      }
+
+      riders[id] = { ...riders[id], ...data };
+      updateRiderCount();
+    }
+
+    function updateRiderCount() {
+      const count = Object.keys(riders).length;
+      document.getElementById("display-count").textContent =
+        count === 1 ? "1 Fahrer aktiv" : `${count} Fahrer aktiv`;
+    }
+
+    // Jede Sekunde die Zeitstempel ("vor 5 Sek.") aktualisieren & inaktive Fahrer (> 3 Min) entfernen
+    setInterval(() => {
+      const now = Date.now();
+      for (const [id, rider] of Object.entries(riders)) {
+        if (id === myId) continue;
+
+        if (now - rider.lastSeen > 180000) {
+          if (rider.marker) map.removeLayer(rider.marker);
+          delete riders[id];
+          updateRiderCount();
+        } else {
+          const timeEl = document.getElementById(`time-${id}`);
+          if (timeEl) timeEl.textContent = formatTimeAgo(rider.lastSeen);
+        }
+      }
+    }, 1000);
+
+    // =========================================================================
+    // 7. SUPABASE REALTIME VERBINDUNG
+    // =========================================================================
+    function connectToGroup() {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // Kanal-Name basiert auf dem eingegebenen Gruppen-Code
+      const channelName = `gravel-room-${groupCode.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+
+      roomChannel = supabaseClient.channel(channelName, {
+        config: {
+          broadcast: { self: false } // Eigene Nachrichten nicht doppelt empfangen
+        }
+      });
+
+      roomChannel
+        .on("broadcast", { event: "pos" }, ({ payload }) => {
+          updateRiderOnMap(payload.id, {
+            name: payload.name,
+            color: payload.color,
+            lat: payload.lat,
+            lng: payload.lng,
+            lastSeen: Date.now()
+          });
+        })
+        .subscribe((status) => {
+          const netDot = document.getElementById("net-dot");
+          if (status === "SUBSCRIBED") {
+            netDot.classList.add("active");
+            showToast(`Verbunden mit Gruppe #${groupCode}`);
+            broadcastMyPosition();
+          } else {
+            netDot.classList.remove("active");
+          }
+        });
+    }
+
+    function broadcastMyPosition() {
+      if (!myCoords || !roomChannel) return;
+
+      roomChannel.send({
+        type: "broadcast",
+        event: "pos",
+        payload: {
+          id: myId,
+          name: myName,
+          color: myColor,
+          lat: myCoords.lat,
+          lng: myCoords.lng
+        }
+      });
+    }
+
+    // =========================================================================
+    // 8. LIVE GPS-TRACKING (ALLE 5 SEKUNDEN SENDEN)
+    // =========================================================================
+    function startGPSTracking() {
+      if (!("geolocation" in navigator)) {
+        showToast("Dein Browser unterstützt kein GPS.");
+        return;
+      }
+
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          document.getElementById("gps-dot").classList.add("active");
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const isFirstFix = !myCoords;
+
+          myCoords = { lat, lng };
+
+          updateRiderOnMap(myId, {
+            name: myName,
+            color: myColor,
+            lat,
+            lng,
+            lastSeen: Date.now()
+          });
+
+          if (isFirstFix) {
+            map.setView([lat, lng], 15);
+            broadcastMyPosition();
+          } else if (autoCenter) {
+            map.panTo([lat, lng]);
+          }
+        },
+        (err) => {
+          document.getElementById("gps-dot").classList.remove("active");
+          showToast("GPS-Signal gesucht... Bitte Standort freigeben.");
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 3000,
+          timeout: 10000
+        }
+      );
+
+      // Alle 5 Sekunden Position an die Gruppe senden
+      setInterval(() => {
+        broadcastMyPosition();
+      }, 5000);
+    }
+
+    // =========================================================================
+    // 9. GPX-DATEI UPLOAD & PARSING
+    // =========================================================================
+    document.getElementById("gpx-btn").addEventListener("click", () => {
+      document.getElementById("gpx-input").click();
+    });
+
+    document.getElementById("gpx-input").addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+          const trkpts = xmlDoc.getElementsByTagName("trkpt");
+          const rtepts = xmlDoc.getElementsByTagName("rtept");
+          const points = trkpts.length > 0 ? trkpts : rtepts;
+
+          if (points.length === 0) {
+            showToast("Keine gültigen Routenpunkte in der GPX-Datei gefunden.");
+            return;
+          }
+
+          const latlngs = [];
+          for (let i = 0; i < points.length; i++) {
+            const lat = parseFloat(points[i].getAttribute("lat"));
+            const lon = parseFloat(points[i].getAttribute("lon"));
+            if (!isNaN(lat) && !isNaN(lon)) {
+              latlngs.push([lat, lon]);
+            }
+          }
+
+          if (gpxLayer) {
+            map.removeLayer(gpxLayer);
+          }
+
+          const outline = L.polyline(latlngs, { color: "#ffffff", weight: 8, opacity: 0.85 });
+          const innerLine = L.polyline(latlngs, { color: "#e11d48", weight: 4.5, opacity: 1 });
+          gpxLayer = L.layerGroup([outline, innerLine]).addTo(map);
+
+          autoCenter = false;
+          document.getElementById("center-btn").classList.remove("active");
+          map.fitBounds(outline.getBounds(), { padding: [40, 40] });
+
+          document.getElementById("gpx-btn").classList.add("active");
+          showToast(`GPX geladen (${latlngs.length} Punkte)`);
+        } catch (err) {
+          showToast("Fehler beim Lesen der GPX-Datei.");
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // =========================================================================
+    // 10. BUTTONS: ZENTRIEREN & SCREEN WAKE LOCK
+    // =========================================================================
+    document.getElementById("center-btn").addEventListener("click", () => {
+      autoCenter = true;
+      document.getElementById("center-btn").classList.add("active");
+      if (myCoords) {
+        map.setView([myCoords.lat, myCoords.lng], 15);
+      } else {
+        showToast("Warte auf eigenes GPS-Signal...");
+      }
+    });
+
+    async function toggleWakeLock() {
+      const btn = document.getElementById("wakelock-btn");
+      const text = document.getElementById("wakelock-text");
+
+      if (!("wakeLock" in navigator)) {
+        showToast("Wake-Lock wird von diesem Browser nicht unterstützt.");
+        return;
+      }
+
+      if (wakeLock !== null) {
+        await wakeLock.release();
+        wakeLock = null;
+        btn.classList.remove("active");
+        text.textContent = "Display An";
+        showToast("Display-Sperre wieder normal");
+      } else {
+        try {
+          wakeLock = await navigator.wakeLock.request("screen");
+          btn.classList.add("active");
+          text.textContent = "Bleibt An";
+          showToast("Display bleibt am Lenker dauerhaft an");
+
+          wakeLock.addEventListener("release", () => {
+            wakeLock = null;
+            btn.classList.remove("active");
+            text.textContent = "Display An";
+          });
+        } catch (err) {
+          showToast("Display-Sperre konnte nicht aktiviert werden.");
+        }
+      }
+    }
+
+    document.getElementById("wakelock-btn").addEventListener("click", toggleWakeLock);
+
+    document.addEventListener("visibilitychange", async () => {
+      if (wakeLock !== null && document.visibilityState === "visible") {
+        try {
+          wakeLock = await navigator.wakeLock.request("screen");
+        } catch (e) {}
+      }
+    });
+
+    // =========================================================================
+    // 11. START DER TOUR (LOGIN-BUTTON)
+    // =========================================================================
+    document.getElementById("join-btn").addEventListener("click", () => {
+      const nameInput = document.getElementById("rider-name").value.trim();
+      const groupInput = document.getElementById("group-code").value.trim().toUpperCase();
+
+      if (!nameInput || !groupInput) {
+        alert("Bitte gib deinen Namen und einen Gruppen-Code ein!");
+        return;
+      }
+
+      myName = nameInput;
+      groupCode = groupInput;
+
+      localStorage.setItem("gp_name", myName);
+      localStorage.setItem("gp_group", groupCode);
+
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("top-bar").style.display = "flex";
+      document.getElementById("bottom-controls").style.display = "grid";
+      document.getElementById("display-room").textContent = `#${groupCode}`;
+
+      initMap();
+      connectToGroup();
+      startGPSTracking();
+      toggleWakeLock();
+    });
+  </script>
+</body>
+</html>
