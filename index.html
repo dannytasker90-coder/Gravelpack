@@ -416,6 +416,10 @@
       cursor: pointer;
     }
 
+    .mini-btn:active {
+      transform: scale(0.96);
+    }
+
     .mini-btn.green {
       background: rgba(16, 185, 129, 0.2);
       border-color: rgba(16, 185, 129, 0.45);
@@ -491,7 +495,7 @@
       color: var(--accent);
     }
 
-    /* Routen-Planer Panel */
+    /* Routen-Planer Panel mit Ortseingabe */
     #planner-panel {
       position: fixed;
       bottom: max(12px, env(safe-area-inset-bottom));
@@ -500,14 +504,14 @@
       z-index: 600;
       display: none;
       flex-direction: column;
-      gap: 10px;
-      background: rgba(15, 23, 42, 0.94);
+      gap: 9px;
+      background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--accent);
       border-radius: var(--radius-lg);
       padding: 14px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8);
     }
 
     #planner-panel.open {
@@ -532,8 +536,66 @@
       color: var(--text-main);
     }
 
-    .planner-hint {
+    /* Start -> Ziel Suchleiste */
+    .route-search-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(2, 6, 23, 0.65);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 8px 10px;
+    }
+
+    .start-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       font-size: 12px;
+      font-weight: 700;
+      color: #6ee7b7;
+    }
+
+    .dest-input-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dest-input-row input {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 9px 11px;
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      user-select: text;
+    }
+
+    .dest-input-row input:focus {
+      border-color: var(--accent);
+    }
+
+    .dest-go-btn {
+      background: var(--accent);
+      color: #090d16;
+      border: none;
+      border-radius: 10px;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .dest-go-btn:active {
+      transform: scale(0.95);
+    }
+
+    .planner-hint {
+      font-size: 11px;
       color: var(--text-muted);
     }
 
@@ -821,7 +883,7 @@
     <div class="login-card">
       <div class="brand-badge">⚡ GravelPack Pro</div>
       <h1>Group Ride Cockpit</h1>
-      <p>Routen selbst planen, Touren aufzeichnen, GPX teilen & deine Gruppe live auf der Karte verfolgen.</p>
+      <p>Zielort eingeben & Route berechnen, Touren aufzeichnen, GPX teilen & deine Gruppe live verfolgen.</p>
 
       <div class="input-group">
         <label for="rider-name">Dein Fahrername</label>
@@ -885,7 +947,7 @@
     <!-- Aufzeichnungs-Steuerung (REC Drawer) -->
     <div id="rec-drawer">
       <div class="rec-header">
-        <span id="rec-status-label">🔴 Aufzeichnung läuft (<span id="track-pts-count">0</span> Punkte)</span>
+        <span id="rec-status-label">🔴 Aufzeichnung läuft (<span>0</span> Punkte)</span>
         <button class="banner-btn" onclick="document.getElementById('rec-drawer').classList.remove('open')">✕</button>
       </div>
       <div class="rec-actions">
@@ -941,19 +1003,32 @@
     <button class="status-choice" onclick="setMyStatus('')">✅ Alles OK (Löschen)</button>
   </div>
 
-  <!-- Routen-Planer Panel -->
+  <!-- Routen-Planer Panel (Mein Standort -> Zielort + Karte tippen) -->
   <div id="planner-panel">
     <div class="planner-top">
-      <span class="planner-title">✏️ Eigene Route planen</span>
+      <span class="planner-title">🧭 Route berechnen & planen</span>
       <span class="planner-stats" id="plan-dist">0.0 km · 0 Punkte</span>
     </div>
-    <div class="planner-hint" id="plan-hint">Tippe nacheinander auf die Karte, um Wegpunkte zu setzen.</div>
+
+    <div class="route-search-box">
+      <div class="start-badge-row">
+        <span>🟢 Start: Mein aktueller GPS-Standort</span>
+      </div>
+      <div class="dest-input-row">
+        <input type="text" id="dest-input" placeholder="Zielort eingeben (z. B. Ammersee, Biergarten...)" />
+        <button class="dest-go-btn" id="btn-dest-calc">Los</button>
+      </div>
+    </div>
+
+    <div class="planner-hint" id="plan-hint">Gib oben ein Ziel ein oder tippe weitere Zwischenpunkte auf die Karte.</div>
+
     <div class="planner-grid">
       <button class="mini-btn" id="btn-plan-mode">🛣️ Wege</button>
       <button class="mini-btn" id="btn-plan-undo">↶ Zurück</button>
       <button class="mini-btn danger" id="btn-plan-clear">🗑️ Neu</button>
       <button class="mini-btn green" id="btn-plan-save">⬇ GPX</button>
     </div>
+
     <div class="planner-bottom-row">
       <button class="mini-btn" id="btn-plan-close">Schließen</button>
       <button class="mini-btn amber" id="btn-plan-apply">🚀 An Gruppe senden</button>
@@ -1025,8 +1100,8 @@
     // Planner State
     let plannerMode = false;
     let planSnapToRoads = true;
-    let planWaypoints = []; // [{ lat, lng, marker }]
-    let planRouteCoords = []; // [[lat, lng], ...]
+    let planWaypoints = [];
+    let planRouteCoords = [];
     let planPolyline = null;
 
     const riders = {};
@@ -1091,7 +1166,6 @@
       return sum;
     }
 
-    // GPX-Datei Download-Helfer
     function downloadGPXFile(points, routeTitle, filename) {
       const nowIso = new Date().toISOString();
       const trkpts = points.map(pt => {
@@ -1129,7 +1203,7 @@ ${trkpts}
     }
 
     // ==========================
-    // ROUTEN-PLANER LOGIK
+    // ROUTEN-PLANER & ZIEL-SUCHE
     // ==========================
     document.getElementById("btn-planner").addEventListener("click", () => {
       plannerMode = true;
@@ -1147,15 +1221,69 @@ ${trkpts}
     document.getElementById("btn-plan-mode").addEventListener("click", () => {
       planSnapToRoads = !planSnapToRoads;
       document.getElementById("btn-plan-mode").textContent = planSnapToRoads ? "🛣️ Wege" : "📏 Luftlinie";
-      recalculatePlannedRoute();
+      recalculatePlannedRoute(false);
+    });
+
+    // Zielort suchen & Route ab "Mein Standort" berechnen
+    async function searchAndRouteDestination() {
+      const query = document.getElementById("dest-input").value.trim();
+      if (!query) {
+        alert("Bitte gib zuerst einen Zielort oder eine Adresse ein.");
+        return;
+      }
+
+      const startPos = myPos || { lat: map.getCenter().lat, lng: map.getCenter().lng };
+      const hintEl = document.getElementById("plan-hint");
+      hintEl.textContent = `Suche „${query}“...`;
+
+      try {
+        // Bevorzugt in der Nähe des aktuellen Standorts suchen
+        const viewbox = `${startPos.lng - 0.8},${startPos.lat + 0.8},${startPos.lng + 0.8},${startPos.lat - 0.8}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&viewbox=${viewbox}&q=${encodeURIComponent(query)}`;
+        const res = await fetch(url, { headers: { "Accept-Language": "de" } });
+        const results = await res.json();
+
+        if (!results || results.length === 0) {
+          hintEl.textContent = `Ziel „${query}“ nicht gefunden. Bitte genauer eingeben.`;
+          return;
+        }
+
+        const destLat = parseFloat(results[0].lat);
+        const destLng = parseFloat(results[0].lon);
+        const shortName = results[0].display_name.split(",")[0];
+
+        // Bisherige Plan-Punkte leeren und Start (Mein Standort) + Ziel setzen
+        planWaypoints.forEach(wp => map.removeLayer(wp.marker));
+        planWaypoints = [];
+
+        addPlanWaypoint(startPos.lat, startPos.lng, false);
+        addPlanWaypoint(destLat, destLng, false);
+
+        await recalculatePlannedRoute(true);
+        hintEl.textContent = `Route nach ${shortName} berechnet! Tippe für Zwischenstopps auf die Karte.`;
+      } catch (err) {
+        hintEl.textContent = "Adresssuche fehlgeschlagen. Prüfe deine Internetverbindung.";
+      }
+    }
+
+    document.getElementById("btn-dest-calc").addEventListener("click", searchAndRouteDestination);
+    document.getElementById("dest-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        searchAndRouteDestination();
+      }
     });
 
     map.on("click", (e) => {
       if (!plannerMode) return;
-      addPlanWaypoint(e.latlng.lat, e.latlng.lng);
+      // Wenn noch kein Startpunkt gesetzt ist und GPS aktiv ist, automatisch "Mein Standort" als Punkt 1 nehmen
+      if (planWaypoints.length === 0 && myPos) {
+        addPlanWaypoint(myPos.lat, myPos.lng, false);
+      }
+      addPlanWaypoint(e.latlng.lat, e.latlng.lng, true);
     });
 
-    function addPlanWaypoint(lat, lng) {
+    function addPlanWaypoint(lat, lng, autoCalc = true) {
       const num = planWaypoints.length + 1;
       const icon = L.divIcon({
         className: "",
@@ -1165,10 +1293,10 @@ ${trkpts}
       });
       const marker = L.marker([lat, lng], { icon }).addTo(map);
       planWaypoints.push({ lat, lng, marker });
-      recalculatePlannedRoute();
+      if (autoCalc) recalculatePlannedRoute(false);
     }
 
-    async function recalculatePlannedRoute() {
+    async function recalculatePlannedRoute(fitBoundsAfter = false) {
       const statsEl = document.getElementById("plan-dist");
       const hintEl = document.getElementById("plan-hint");
 
@@ -1176,7 +1304,7 @@ ${trkpts}
         planRouteCoords = [];
         planPolyline.setLatLngs([]);
         statsEl.textContent = "0.0 km · 0 Punkte";
-        hintEl.textContent = "Tippe nacheinander auf die Karte, um Wegpunkte zu setzen.";
+        hintEl.textContent = "Gib oben ein Ziel ein oder tippe auf die Karte.";
         return;
       }
 
@@ -1184,7 +1312,6 @@ ${trkpts}
         planRouteCoords = [[planWaypoints[0].lat, planWaypoints[0].lng]];
         planPolyline.setLatLngs(planRouteCoords);
         statsEl.textContent = "0.0 km · 1 Punkt";
-        hintEl.textContent = "Tippe einen zweiten Punkt auf der Karte an.";
         return;
       }
 
@@ -1193,11 +1320,11 @@ ${trkpts}
         planPolyline.setLatLngs(planRouteCoords);
         const km = (calcPolylineLength(planRouteCoords) / 1000).toFixed(1);
         statsEl.textContent = `${km} km · ${planWaypoints.length} Punkte`;
-        hintEl.textContent = "Luftlinien-Modus aktiv.";
+        if (fitBoundsAfter) map.fitBounds(planPolyline.getBounds(), { padding: [65, 65] });
         return;
       }
 
-      hintEl.textContent = "Berechne Wegverlauf...";
+      hintEl.textContent = "Berechne Fahrrad- & Schotterweg...";
       try {
         const coordStr = planWaypoints.map(wp => `${wp.lng.toFixed(6)},${wp.lat.toFixed(6)}`).join(";");
         const res = await fetch(`https://routing.openstreetmap.de/routed-bike/route/v1/driving/${coordStr}?overview=full&geometries=geojson`);
@@ -1208,12 +1335,16 @@ ${trkpts}
           planPolyline.setLatLngs(planRouteCoords);
           const km = (json.routes[0].distance / 1000).toFixed(1);
           statsEl.textContent = `${km} km · ${planWaypoints.length} Punkte`;
-          hintEl.textContent = "Wegverlauf berechnet. Tippe weitere Punkte oder übernimm die Route.";
+          hintEl.textContent = "Route bereit. Tippe für Zwischenstopps auf die Karte oder sende sie an alle.";
+          if (fitBoundsAfter) {
+            followMe = false;
+            document.getElementById("btn-center").classList.remove("active");
+            map.fitBounds(planPolyline.getBounds(), { padding: [65, 65] });
+          }
         } else {
           throw new Error("Routing fallback");
         }
       } catch (err) {
-        // Fallback auf direkte Verbindung falls offline
         planRouteCoords = planWaypoints.map(wp => [wp.lat, wp.lng]);
         planPolyline.setLatLngs(planRouteCoords);
         const km = (calcPolylineLength(planRouteCoords) / 1000).toFixed(1);
@@ -1226,18 +1357,19 @@ ${trkpts}
       if (planWaypoints.length === 0) return;
       const last = planWaypoints.pop();
       map.removeLayer(last.marker);
-      recalculatePlannedRoute();
+      recalculatePlannedRoute(false);
     });
 
     document.getElementById("btn-plan-clear").addEventListener("click", () => {
       planWaypoints.forEach(wp => map.removeLayer(wp.marker));
       planWaypoints = [];
-      recalculatePlannedRoute();
+      document.getElementById("dest-input").value = "";
+      recalculatePlannedRoute(false);
     });
 
     document.getElementById("btn-plan-save").addEventListener("click", () => {
       if (planRouteCoords.length < 2) {
-        alert("Setze zuerst mindestens 2 Wegpunkte auf der Karte.");
+        alert("Berechne zuerst eine Route (Ziel eingeben oder 2 Punkte tippen).");
         return;
       }
       const dateStr = new Date().toISOString().slice(0, 10);
@@ -1246,7 +1378,7 @@ ${trkpts}
 
     document.getElementById("btn-plan-apply").addEventListener("click", () => {
       if (planRouteCoords.length < 2) {
-        alert("Setze zuerst mindestens 2 Wegpunkte auf der Karte.");
+        alert("Berechne zuerst eine Route (Ziel eingeben oder 2 Punkte tippen).");
         return;
       }
       drawGroupRoute(planRouteCoords, true);
@@ -1259,7 +1391,6 @@ ${trkpts}
           payload: { by: myName, pts: compactPts }
         });
       }
-      // Planungs-Overlay aufräumen und schließen
       planWaypoints.forEach(wp => map.removeLayer(wp.marker));
       planWaypoints = [];
       planRouteCoords = [];
