@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#060911" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>GravelPack — Ultra Group Cockpit</title>
+  <title>GravelPack — Ultra Navi & Group Cockpit</title>
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -14,9 +14,9 @@
   <style>
     :root {
       --bg-base: #060911;
-      --glass-bg: rgba(11, 17, 30, 0.78);
-      --glass-strong: rgba(11, 17, 30, 0.92);
-      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-bg: rgba(11, 17, 30, 0.80);
+      --glass-strong: rgba(11, 17, 30, 0.94);
+      --glass-border: rgba(255, 255, 255, 0.13);
       --glass-highlight: rgba(255, 255, 255, 0.06);
       --accent: #f59e0b;
       --accent-soft: rgba(245, 158, 11, 0.16);
@@ -79,7 +79,7 @@
     .login-card {
       width: 100%;
       max-width: 400px;
-      background: rgba(15, 23, 42, 0.82);
+      background: rgba(15, 23, 42, 0.84);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.14);
@@ -146,7 +146,6 @@
       font-weight: 600;
       outline: none;
       user-select: text;
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .input-group input:focus {
@@ -166,7 +165,6 @@
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 12px 28px -6px var(--accent-glow);
-      transition: transform 0.12s;
     }
 
     .btn-primary:active {
@@ -215,7 +213,6 @@
       font-size: 16px;
       font-weight: 800;
       color: var(--accent);
-      letter-spacing: -0.01em;
       display: flex;
       align-items: center;
       gap: 5px;
@@ -234,8 +231,8 @@
     }
 
     .rec-trigger-btn {
-      background: rgba(239, 68, 68, 0.16);
-      border: 1px solid rgba(239, 68, 68, 0.45);
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.5);
       color: #fca5a5;
       padding: 5px 10px;
       border-radius: 999px;
@@ -248,9 +245,9 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .rec-trigger-btn.paused {
+    .rec-trigger-btn.stopped {
       background: rgba(148, 163, 184, 0.14);
-      border-color: rgba(148, 163, 184, 0.3);
+      border-color: rgba(148, 163, 184, 0.35);
       color: var(--text-muted);
     }
 
@@ -262,7 +259,7 @@
       animation: blink 1.2s infinite;
     }
 
-    .rec-trigger-btn.paused .rec-dot {
+    .rec-trigger-btn.stopped .rec-dot {
       background: var(--text-muted);
       animation: none;
     }
@@ -337,6 +334,91 @@
       letter-spacing: 0.05em;
     }
 
+    /* ==========================
+       TURN-BY-TURN NAVI BOX
+       ========================== */
+    #active-navi-card {
+      display: none;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.94) 0%, rgba(11, 17, 30, 0.95) 100%);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(16, 185, 129, 0.65);
+      border-radius: var(--radius-xl);
+      padding: 12px 14px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #active-navi-card.open {
+      display: flex;
+    }
+
+    .navi-main-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .navi-turn-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(16, 185, 129, 0.22);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .navi-instruction-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .navi-dist-step {
+      font-size: 18px;
+      font-weight: 900;
+      color: #6ee7b7;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .navi-street {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f8fafc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .navi-stop-btn {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid rgba(239, 68, 68, 0.55);
+      color: #fca5a5;
+      border-radius: 12px;
+      padding: 8px 11px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .navi-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      color: #cbd5e1;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
     /* Banner */
     .alert-banner {
       display: none;
@@ -366,7 +448,7 @@
     }
 
     .alert-banner.chat-toast {
-      background: rgba(15, 23, 42, 0.94);
+      background: rgba(15, 23, 42, 0.95);
       border-color: var(--blue);
       color: var(--text-main);
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
@@ -444,8 +526,8 @@
     }
 
     .mini-btn.green {
-      background: rgba(16, 185, 129, 0.2);
-      border-color: rgba(16, 185, 129, 0.45);
+      background: rgba(16, 185, 129, 0.22);
+      border-color: rgba(16, 185, 129, 0.5);
       color: #6ee7b7;
     }
 
@@ -480,7 +562,7 @@
     }
 
     #rider-list-items {
-      max-height: 180px;
+      max-height: 210px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -491,16 +573,19 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 12px;
-      border-radius: 12px;
+      gap: 8px;
+      padding: 9px 11px;
+      border-radius: 13px;
       background: var(--glass-highlight);
-      cursor: pointer;
     }
 
     .rider-info {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
+      cursor: pointer;
+      flex: 1;
+      min-width: 0;
     }
 
     .rider-swatch {
@@ -508,17 +593,43 @@
       height: 12px;
       border-radius: 50%;
       border: 2px solid #fff;
+      flex-shrink: 0;
+    }
+
+    .rider-text-col {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
     }
 
     .rider-name {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .rider-meta {
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 600;
       color: var(--accent);
+    }
+
+    .rider-nav-btn {
+      background: rgba(16, 185, 129, 0.22);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .rider-nav-btn:active {
+      transform: scale(0.95);
     }
 
     .logout-btn {
@@ -578,7 +689,7 @@
     }
 
     #chat-messages {
-      height: 185px;
+      height: 195px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -627,6 +738,16 @@
       font-weight: 600;
     }
 
+    .chat-photo-img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 11px;
+      margin-top: 4px;
+      display: block;
+      cursor: pointer;
+    }
+
     .quick-replies {
       display: flex;
       gap: 6px;
@@ -650,10 +771,6 @@
       cursor: pointer;
     }
 
-    .qr-chip:active {
-      transform: scale(0.95);
-    }
-
     .chat-input-row {
       display: flex;
       gap: 7px;
@@ -672,23 +789,15 @@
       user-select: text;
     }
 
-    .chat-input-row input:focus {
-      border-color: var(--blue);
-    }
-
     .chat-send-btn {
       background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
       color: #060911;
       border: none;
       border-radius: 14px;
-      padding: 0 16px;
-      font-size: 14px;
+      padding: 0 15px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
-    }
-
-    .chat-send-btn:active {
-      transform: scale(0.95);
     }
 
     /* Routen-Planer Panel */
@@ -790,8 +899,24 @@
 
     .planner-bottom-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      grid-template-columns: 1fr 1.4fr 1.2fr;
+      gap: 7px;
+    }
+
+    .start-navi-cta {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 11px 6px;
+      color: #060911;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+    }
+
+    .start-navi-cta:active {
+      transform: scale(0.96);
     }
 
     /* Schwebende Seiten-Buttons */
@@ -821,10 +946,6 @@
       gap: 2px;
       cursor: pointer;
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
-    }
-
-    .fab-btn:active {
-      transform: scale(0.94);
     }
 
     .fab-btn svg {
@@ -885,7 +1006,7 @@
       background: rgba(245, 158, 11, 0.18);
     }
 
-    /* Unteres Action-Dock (6 kompakte Buttons inkl. Chat) */
+    /* Unteres Action-Dock (6 kompakte Buttons inkl. Chat & Kamera) */
     #hud-bottom {
       position: fixed;
       bottom: max(12px, env(safe-area-inset-bottom));
@@ -951,7 +1072,7 @@
     .unread-badge {
       position: absolute;
       top: 5px;
-      right: 7px;
+      right: 6px;
       min-width: 16px;
       height: 16px;
       padding: 0 4px;
@@ -968,6 +1089,40 @@
 
     .unread-badge.show {
       display: flex;
+    }
+
+    /* Foto Lightbox Modal */
+    #photo-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      background: rgba(6, 9, 17, 0.92);
+      backdrop-filter: blur(16px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 14px;
+    }
+
+    #photo-modal.open {
+      display: flex;
+    }
+
+    #photo-modal img {
+      max-width: 100%;
+      max-height: 74vh;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.85);
+    }
+
+    #photo-modal-caption {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      text-align: center;
     }
 
     /* Marker & Wegpunkte */
@@ -1053,6 +1208,34 @@
       box-shadow: 0 3px 10px rgba(0,0,0,0.6);
     }
 
+    .photo-pin-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: translate(-50%, -100%);
+      cursor: pointer;
+    }
+
+    .photo-pin-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 2.5px solid #38bdf8;
+      object-fit: cover;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
+      background: #0f172a;
+    }
+
+    .photo-pin-tag {
+      background: #0284c7;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin-top: -6px;
+    }
+
     .meeting-pin {
       display: flex;
       flex-direction: column;
@@ -1083,7 +1266,7 @@
       100% { transform: scale(1.9); opacity: 0; }
     }
 
-    #gpx-input {
+    #gpx-input, #camera-input {
       display: none;
     }
   </style>
@@ -1095,7 +1278,7 @@
     <div class="login-card">
       <div class="brand-badge">⚡ GravelPack Ultra</div>
       <h1>Group Ride Cockpit</h1>
-      <p>Live-Gruppenchat, Zielort-Navigation, Tour-Aufzeichnung & Echtzeit-Radar auf einer Karte.</p>
+      <p>Turn-by-Turn Navi zu Orten & Kollegen, Kamera-Pins, Live-Chat & Tour-Aufzeichnung.</p>
 
       <div class="input-group">
         <label for="rider-name">Dein Fahrername</label>
@@ -1111,6 +1294,13 @@
     </div>
   </div>
 
+  <!-- Foto Vollbild-Ansicht -->
+  <div id="photo-modal" onclick="this.classList.remove('open')">
+    <img id="photo-modal-img" src="" alt="Tour Foto" />
+    <div id="photo-modal-caption"></div>
+    <button class="mini-btn" style="padding: 10px 20px;">Schließen</button>
+  </div>
+
   <!-- Karte -->
   <div id="map"></div>
 
@@ -1123,13 +1313,13 @@
             <span id="display-room">#GRVL</span>
             <span style="font-size: 11px; opacity: 0.7;">▼</span>
           </div>
-          <div class="rider-count" id="display-count">1 Fahrer aktiv · Menü</div>
+          <div class="rider-count" id="display-count">1 Fahrer aktiv · Ziele & Menü</div>
         </div>
 
         <div class="hud-right-group">
-          <button class="rec-trigger-btn" id="btn-rec-menu" title="Aufzeichnung & GPX Export">
+          <button class="rec-trigger-btn stopped" id="btn-rec-menu" title="Aufzeichnung starten / exportieren">
             <span class="rec-dot"></span>
-            <span id="rec-badge-text">REC · 0</span>
+            <span id="rec-badge-text">REC AUS</span>
           </button>
 
           <div class="status-pills">
@@ -1156,16 +1346,32 @@
       </div>
     </div>
 
-    <!-- Aufzeichnungs-Steuerung (REC Drawer) -->
+    <!-- Turn-by-Turn Navi-Anzeige (erscheint nach Drücken auf "Start") -->
+    <div id="active-navi-card">
+      <div class="navi-main-row">
+        <div class="navi-turn-icon" id="navi-icon">⬆️</div>
+        <div class="navi-instruction-wrap">
+          <div class="navi-dist-step" id="navi-step-dist">Route aktiv</div>
+          <div class="navi-street" id="navi-step-text">Folge der grünen Linie</div>
+        </div>
+        <button class="navi-stop-btn" id="btn-stop-navi">Stopp</button>
+      </div>
+      <div class="navi-footer-row">
+        <span id="navi-target-label">🎯 Ziel: —</span>
+        <span id="navi-rem-stats">0.0 km · ETA —:—</span>
+      </div>
+    </div>
+
+    <!-- Aufzeichnungs-Steuerung (REC Drawer - Startet jetzt händisch!) -->
     <div id="rec-drawer">
       <div class="rec-header">
-        <span id="rec-status-label">🔴 Aufzeichnung läuft (<span>0</span> Punkte)</span>
+        <span id="rec-status-label">⏹️ Aufzeichnung bereit (<span>0</span> Punkte)</span>
         <button class="banner-btn" onclick="document.getElementById('rec-drawer').classList.remove('open')">✕</button>
       </div>
       <div class="rec-actions">
-        <button class="mini-btn" id="btn-rec-toggle">⏸️ Pause</button>
+        <button class="mini-btn green" id="btn-rec-toggle">▶️ Start</button>
         <button class="mini-btn danger" id="btn-rec-reset">🗑️ Reset</button>
-        <button class="mini-btn green" id="btn-export-gpx">⬇ GPX Export</button>
+        <button class="mini-btn" id="btn-export-gpx">⬇ GPX Export</button>
       </div>
     </div>
 
@@ -1196,7 +1402,7 @@
       <button class="banner-btn" onclick="document.getElementById('rider-alert-banner').classList.remove('show')">OK</button>
     </div>
 
-    <!-- Ausklappbare Fahrerliste & Ausloggen -->
+    <!-- Ausklappbare Fahrerliste (mit Ziel-Navi zu Kollegen!) & Ausloggen -->
     <div id="rider-drawer">
       <div id="rider-list-items"></div>
       <button class="logout-btn" id="btn-logout">🚪 Tour verlassen / Ausloggen</button>
@@ -1219,12 +1425,12 @@
   <!-- Gruppen-Chat Panel -->
   <div id="chat-panel">
     <div class="chat-header">
-      <span class="chat-title">💬 Gruppen-Chat</span>
+      <span class="chat-title">💬 Gruppen-Chat & Tour-Fotos</span>
       <button class="banner-btn" id="btn-close-chat">✕</button>
     </div>
 
     <div id="chat-messages">
-      <div class="chat-empty">Noch keine Nachrichten. Schreib deiner Gruppe oder nutze einen Schnell-Button unten.</div>
+      <div class="chat-empty">Schreib deiner Gruppe oder nutze unten den Kamera-Button für Live-Fotos.</div>
     </div>
 
     <div class="quick-replies">
@@ -1248,10 +1454,10 @@
     <button class="status-choice" onclick="setMyStatus('')">✅ Alles OK (Löschen)</button>
   </div>
 
-  <!-- Routen-Planer Panel -->
+  <!-- Routen-Planer & Navi-Panel -->
   <div id="planner-panel">
     <div class="planner-top">
-      <span class="planner-title">🧭 Route berechnen & planen</span>
+      <span class="planner-title">🧭 Ziel & Turn-by-Turn Navi</span>
       <span class="planner-stats" id="plan-dist">0.0 km · 0 Punkte</span>
     </div>
 
@@ -1261,31 +1467,37 @@
       </div>
       <div class="dest-input-row">
         <input type="text" id="dest-input" placeholder="Zielort eingeben (z. B. Ammersee, Biergarten...)" />
-        <button class="dest-go-btn" id="btn-dest-calc">Los</button>
+        <button class="dest-go-btn" id="btn-dest-calc">Suchen</button>
       </div>
     </div>
 
-    <div class="planner-hint" id="plan-hint">Gib oben ein Ziel ein oder tippe weitere Zwischenpunkte auf die Karte.</div>
+    <div class="planner-hint" id="plan-hint">Gib ein Ziel ein (oder wähle einen Fahrer in der Liste oben) und drücke auf Start.</div>
 
     <div class="planner-grid">
       <button class="mini-btn" id="btn-plan-mode">🛣️ Wege</button>
       <button class="mini-btn" id="btn-plan-undo">↶ Zurück</button>
       <button class="mini-btn danger" id="btn-plan-clear">🗑️ Neu</button>
-      <button class="mini-btn green" id="btn-plan-save">⬇ GPX</button>
+      <button class="mini-btn" id="btn-plan-save">⬇ GPX</button>
     </div>
 
     <div class="planner-bottom-row">
       <button class="mini-btn" id="btn-plan-close">Schließen</button>
-      <button class="mini-btn amber" id="btn-plan-apply">🚀 An Gruppe senden</button>
+      <button class="start-navi-cta" id="btn-start-navi">▶️ Start (Navi)</button>
+      <button class="mini-btn amber" id="btn-plan-apply">📡 An Gruppe</button>
     </div>
   </div>
 
-  <!-- Unteres Action Dock (6 Buttons inkl. Chat) -->
+  <!-- Unteres Action Dock (7 schlanke Buttons inkl. Chat & Kamera) -->
   <div id="hud-bottom">
     <button class="dock-btn" id="btn-chat">
       <span class="unread-badge" id="chat-unread-badge">0</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       <span>Chat</span>
+    </button>
+
+    <button class="dock-btn" id="btn-camera">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <span>Foto</span>
     </button>
 
     <button class="dock-btn" id="btn-status">
@@ -1294,8 +1506,8 @@
     </button>
 
     <button class="dock-btn" id="btn-planner">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
-      <span>Planer</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+      <span>Navi</span>
     </button>
 
     <button class="dock-btn" id="btn-gpx">
@@ -1315,6 +1527,7 @@
   </div>
 
   <input type="file" id="gpx-input" accept=".gpx,application/gpx+xml,text/xml" />
+  <input type="file" id="camera-input" accept="image/*" capture="environment" />
 
   <!-- Leaflet & Supabase JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1345,21 +1558,28 @@
     let meetingPinMarker = null;
     let meetingPinData = null;
 
-    // Chat State
+    // Chat & Photo Pins
     let chatOpen = false;
     let unreadCount = 0;
+    let photoMarkers = [];
 
-    // Recording State
-    let isRecording = true;
+    // Recording State (JETZT STANDARDMÄSSIG AUS -> Händischer Start!)
+    let isRecording = false;
     let recordedTrack = [];
     let recordedPolyline = null;
 
-    // Planner State
+    // Planner & Turn-by-Turn Navi State
     let plannerMode = false;
     let planSnapToRoads = true;
     let planWaypoints = [];
     let planRouteCoords = [];
+    let planSteps = [];
     let planPolyline = null;
+    let planTargetLabel = "";
+
+    let isNavigating = false;
+    let navTargetRiderId = null;
+    let lastRerouteTime = 0;
 
     const riders = {};
 
@@ -1379,13 +1599,13 @@
     recordedPolyline = L.polyline([], {
       color: "#38bdf8",
       weight: 4,
-      opacity: 0.8,
+      opacity: 0.85,
       dashArray: "6, 8"
     }).addTo(map);
 
     planPolyline = L.polyline([], {
       color: "#10b981",
-      weight: 5,
+      weight: 6,
       opacity: 0.95
     }).addTo(map);
 
@@ -1424,7 +1644,103 @@
     }
 
     function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+      return String(str).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+    }
+
+    window.openPhotoModal = function(imgSrc, caption) {
+      document.getElementById("photo-modal-img").src = imgSrc;
+      document.getElementById("photo-modal-caption").textContent = caption;
+      document.getElementById("photo-modal").classList.add("open");
+    };
+
+    // ==========================
+    // KAMERA & FOTO-FUNKTION
+    // ==========================
+    document.getElementById("btn-camera").addEventListener("click", () => {
+      document.getElementById("camera-input").click();
+    });
+
+    document.getElementById("camera-input").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          // Bild auf handliche Größe für schnellen Live-Transfer verkleinern
+          const maxDim = 560;
+          let w = img.width;
+          let h = img.height;
+          if (w > h && w > maxDim) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else if (h >= w && h > maxDim) {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.62);
+
+          const now = new Date();
+          const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+          const photoPayload = {
+            senderId: myId,
+            senderName: myName,
+            senderColor: myColor,
+            image: compressedDataUrl,
+            lat: myPos ? myPos.lat : null,
+            lng: myPos ? myPos.lng : null,
+            time: timeStr
+          };
+
+          handleIncomingPhoto(photoPayload);
+          if (channel) {
+            channel.send({ type: "broadcast", event: "photo", payload: photoPayload });
+          }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+      e.target.value = "";
+    });
+
+    function handleIncomingPhoto(payload) {
+      // 1. Im Gruppen-Chat anzeigen
+      appendChatMessage({
+        senderId: payload.senderId,
+        senderName: payload.senderName,
+        senderColor: payload.senderColor,
+        text: "📸 Tour-Foto geteilt",
+        image: payload.image,
+        time: payload.time
+      });
+
+      // 2. Falls GPS-Standort vorhanden: Foto-Pin auf der Karte setzen
+      if (typeof payload.lat === "number" && typeof payload.lng === "number") {
+        const caption = `📸 Foto von ${payload.senderName} (${payload.time})`;
+        const icon = L.divIcon({
+          className: "",
+          html: `
+            <div class="photo-pin-wrap">
+              <img class="photo-pin-thumb" src="${payload.image}" />
+              <div class="photo-pin-tag">${escapeHtml(payload.senderName)}</div>
+            </div>
+          `,
+          iconSize: [0, 0],
+          iconAnchor: [0, 0]
+        });
+
+        const marker = L.marker([payload.lat, payload.lng], { icon }).addTo(map);
+        marker.on("click", () => openPhotoModal(payload.image, caption));
+        photoMarkers.push(marker);
+      }
     }
 
     // ==========================
@@ -1450,7 +1766,7 @@
     document.getElementById("btn-close-chat").addEventListener("click", () => toggleChatPanel(false));
     document.getElementById("chat-toast-banner").addEventListener("click", () => toggleChatPanel(true));
 
-    function appendChatMessage({ senderId, senderName, senderColor, text, time }) {
+    function appendChatMessage({ senderId, senderName, senderColor, text, image, time }) {
       const box = document.getElementById("chat-messages");
       const emptyHint = box.querySelector(".chat-empty");
       if (emptyHint) emptyHint.remove();
@@ -1458,12 +1774,19 @@
       const isMine = senderId === myId;
       const bubble = document.createElement("div");
       bubble.className = `msg-bubble ${isMine ? "mine" : ""}`;
+
+      const safeCaption = escapeHtml(`${senderName} (${time})`);
+      const imgHtml = image
+        ? `<img class="chat-photo-img" src="${image}" onclick="openPhotoModal('${image}', '${safeCaption}')" />`
+        : "";
+
       bubble.innerHTML = `
         <div class="msg-meta">
           <span style="color:${senderColor}">${escapeHtml(senderName)}</span>
           <span class="msg-time">${escapeHtml(time)}</span>
         </div>
         <div>${escapeHtml(text)}</div>
+        ${imgHtml}
       `;
       box.appendChild(bubble);
       box.scrollTop = box.scrollHeight;
@@ -1549,7 +1872,7 @@ ${trkpts}
     }
 
     // ==========================
-    // ROUTEN-PLANER & ZIEL-SUCHE
+    // ROUTEN-PLANER, GRUPPENZIEL & TURN-BY-TURN NAVI
     // ==========================
     document.getElementById("btn-planner").addEventListener("click", () => {
       plannerMode = true;
@@ -1571,6 +1894,31 @@ ${trkpts}
       recalculatePlannedRoute(false);
     });
 
+    // Gruppenmitglied direkt als Ziel auswählen & Route berechnen
+    window.selectRiderAsDestination = async function(riderId) {
+      const target = riders[riderId];
+      if (!target) return;
+
+      document.getElementById("rider-drawer").classList.remove("open");
+      navTargetRiderId = riderId;
+      planTargetLabel = `Fahrer ${target.name}`;
+      document.getElementById("dest-input").value = `Fahrer: ${target.name}`;
+
+      const startPos = myPos || { lat: map.getCenter().lat, lng: map.getCenter().lng };
+      planWaypoints.forEach(wp => map.removeLayer(wp.marker));
+      planWaypoints = [];
+
+      addPlanWaypoint(startPos.lat, startPos.lng, false);
+      addPlanWaypoint(target.lat, target.lng, false);
+
+      plannerMode = true;
+      document.getElementById("hud-bottom").style.display = "none";
+      document.getElementById("planner-panel").classList.add("open");
+
+      await recalculatePlannedRoute(true);
+      document.getElementById("plan-hint").textContent = `Route zu ${target.name} bereit. Tippe auf „▶️ Start (Navi)“!`;
+    };
+
     async function searchAndRouteDestination() {
       const query = document.getElementById("dest-input").value.trim();
       if (!query) {
@@ -1578,6 +1926,7 @@ ${trkpts}
         return;
       }
 
+      navTargetRiderId = null;
       const startPos = myPos || { lat: map.getCenter().lat, lng: map.getCenter().lng };
       const hintEl = document.getElementById("plan-hint");
       hintEl.textContent = `Suche „${query}“...`;
@@ -1596,6 +1945,7 @@ ${trkpts}
         const destLat = parseFloat(results[0].lat);
         const destLng = parseFloat(results[0].lon);
         const shortName = results[0].display_name.split(",")[0];
+        planTargetLabel = shortName;
 
         planWaypoints.forEach(wp => map.removeLayer(wp.marker));
         planWaypoints = [];
@@ -1604,7 +1954,7 @@ ${trkpts}
         addPlanWaypoint(destLat, destLng, false);
 
         await recalculatePlannedRoute(true);
-        hintEl.textContent = `Route nach ${shortName} berechnet! Tippe für Zwischenstopps auf die Karte.`;
+        hintEl.textContent = `Route nach ${shortName} bereit! Tippe jetzt auf „▶️ Start (Navi)“.`;
       } catch (err) {
         hintEl.textContent = "Adresssuche fehlgeschlagen. Prüfe deine Internetverbindung.";
       }
@@ -1620,6 +1970,8 @@ ${trkpts}
 
     map.on("click", (e) => {
       if (!plannerMode) return;
+      navTargetRiderId = null;
+      if (!planTargetLabel) planTargetLabel = "Karten-Ziel";
       if (planWaypoints.length === 0 && myPos) {
         addPlanWaypoint(myPos.lat, myPos.lng, false);
       }
@@ -1645,6 +1997,7 @@ ${trkpts}
 
       if (planWaypoints.length === 0) {
         planRouteCoords = [];
+        planSteps = [];
         planPolyline.setLatLngs([]);
         statsEl.textContent = "0.0 km · 0 Punkte";
         hintEl.textContent = "Gib oben ein Ziel ein oder tippe auf die Karte.";
@@ -1653,6 +2006,7 @@ ${trkpts}
 
       if (planWaypoints.length === 1) {
         planRouteCoords = [[planWaypoints[0].lat, planWaypoints[0].lng]];
+        planSteps = [];
         planPolyline.setLatLngs(planRouteCoords);
         statsEl.textContent = "0.0 km · 1 Punkt";
         return;
@@ -1660,6 +2014,7 @@ ${trkpts}
 
       if (!planSnapToRoads) {
         planRouteCoords = planWaypoints.map(wp => [wp.lat, wp.lng]);
+        planSteps = [];
         planPolyline.setLatLngs(planRouteCoords);
         const km = (calcPolylineLength(planRouteCoords) / 1000).toFixed(1);
         statsEl.textContent = `${km} km · ${planWaypoints.length} Punkte`;
@@ -1667,18 +2022,41 @@ ${trkpts}
         return;
       }
 
-      hintEl.textContent = "Berechne Fahrrad- & Schotterweg...";
+      if (!isNavigating) hintEl.textContent = "Berechne Fahrrad-Route & Abbiegepunkte...";
       try {
         const coordStr = planWaypoints.map(wp => `${wp.lng.toFixed(6)},${wp.lat.toFixed(6)}`).join(";");
-        const res = await fetch(`https://routing.openstreetmap.de/routed-bike/route/v1/driving/${coordStr}?overview=full&geometries=geojson`);
+        const res = await fetch(`https://routing.openstreetmap.de/routed-bike/route/v1/driving/${coordStr}?overview=full&geometries=geojson&steps=true`);
         const json = await res.json();
 
         if (json.code === "Ok" && json.routes && json.routes[0]) {
           planRouteCoords = json.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
           planPolyline.setLatLngs(planRouteCoords);
+
+          // Turn-by-Turn Schritte extrahieren
+          planSteps = [];
+          if (json.routes[0].legs) {
+            json.routes[0].legs.forEach(leg => {
+              if (leg.steps) {
+                leg.steps.forEach(st => {
+                  if (st.maneuver && st.maneuver.location) {
+                    planSteps.push({
+                      lat: st.maneuver.location[1],
+                      lng: st.maneuver.location[0],
+                      type: st.maneuver.type,
+                      modifier: st.maneuver.modifier || "",
+                      name: st.name || "Radweg / Straße"
+                    });
+                  }
+                });
+              }
+            });
+          }
+
           const km = (json.routes[0].distance / 1000).toFixed(1);
           statsEl.textContent = `${km} km · ${planWaypoints.length} Punkte`;
-          hintEl.textContent = "Route bereit. Tippe für Zwischenstopps auf die Karte oder sende sie an alle.";
+          if (!isNavigating) {
+            hintEl.textContent = "Route bereit! Drücke „▶️ Start (Navi)“ für Live-Navigation.";
+          }
           if (fitBoundsAfter) {
             followMe = false;
             document.getElementById("btn-center").classList.remove("active");
@@ -1689,10 +2067,102 @@ ${trkpts}
         }
       } catch (err) {
         planRouteCoords = planWaypoints.map(wp => [wp.lat, wp.lng]);
+        planSteps = [];
         planPolyline.setLatLngs(planRouteCoords);
         const km = (calcPolylineLength(planRouteCoords) / 1000).toFixed(1);
         statsEl.textContent = `${km} km · ${planWaypoints.length} Punkte`;
-        hintEl.textContent = "Direktverbindung aktiv.";
+      }
+    }
+
+    // ==========================
+    // AKTIVE TURN-BY-TURN NAVIGATION ("START")
+    // ==========================
+    function getManeuverInfo(step) {
+      if (!step) return { icon: "⬆️", text: "Geradeaus folgen" };
+      if (step.type === "arrive") return { icon: "🏁", text: "Ziel erreicht!" };
+      const mod = step.modifier;
+      if (mod.includes("sharp left")) return { icon: "↙️", text: `Scharf links · ${step.name}` };
+      if (mod.includes("slight left")) return { icon: "↖️", text: `Leicht links · ${step.name}` };
+      if (mod.includes("left")) return { icon: "⬅️", text: `Links abbiegen · ${step.name}` };
+      if (mod.includes("sharp right")) return { icon: "↘️", text: `Scharf rechts · ${step.name}` };
+      if (mod.includes("slight right")) return { icon: "↗️", text: `Leicht rechts · ${step.name}` };
+      if (mod.includes("right")) return { icon: "➡️", text: `Rechts abbiegen · ${step.name}` };
+      if (mod.includes("uturn")) return { icon: "🔄", text: `Bitte wenden · ${step.name}` };
+      return { icon: "⬆️", text: `Weiter auf ${step.name}` };
+    }
+
+    function startActiveNavigation() {
+      if (planRouteCoords.length < 2) {
+        alert("Bitte gib zuerst ein Ziel ein oder wähle einen Kollegen aus.");
+        return;
+      }
+
+      isNavigating = true;
+      plannerMode = false;
+      followMe = true;
+      document.getElementById("btn-center").classList.add("active");
+      document.getElementById("planner-panel").classList.remove("open");
+      document.getElementById("hud-bottom").style.display = "flex";
+      document.getElementById("active-navi-card").classList.add("open");
+      document.getElementById("navi-target-label").textContent = `🎯 Ziel: ${planTargetLabel || "Ausgewähltes Ziel"}`;
+
+      if (myPos) {
+        map.flyTo([myPos.lat, myPos.lng], 17, { duration: 0.7 });
+      }
+      updateNavigationHUD();
+    }
+
+    function stopActiveNavigation() {
+      isNavigating = false;
+      navTargetRiderId = null;
+      document.getElementById("active-navi-card").classList.remove("open");
+      planWaypoints.forEach(wp => map.removeLayer(wp.marker));
+      planWaypoints = [];
+      planRouteCoords = [];
+      planSteps = [];
+      planPolyline.setLatLngs([]);
+    }
+
+    document.getElementById("btn-start-navi").addEventListener("click", startActiveNavigation);
+    document.getElementById("btn-stop-navi").addEventListener("click", stopActiveNavigation);
+
+    function updateNavigationHUD() {
+      if (!isNavigating || planRouteCoords.length === 0) return;
+
+      const destCoord = planRouteCoords[planRouteCoords.length - 1];
+      const remMeters = myPos
+        ? getMeters(myPos.lat, myPos.lng, destCoord[0], destCoord[1])
+        : calcPolylineLength(planRouteCoords);
+
+      // ETA bei ca. 18 km/h Gravel-Tempo
+      const minsLeft = Math.max(1, Math.round((remMeters / 1000) / 18 * 60));
+      const etaDate = new Date(Date.now() + minsLeft * 60000);
+      const etaStr = `${String(etaDate.getHours()).padStart(2, "0")}:${String(etaDate.getMinutes()).padStart(2, "0")}`;
+      document.getElementById("navi-rem-stats").textContent = `${formatDist(remMeters)} · ETA ${etaStr}`;
+
+      if (remMeters < 25) {
+        document.getElementById("navi-icon").textContent = "🏁";
+        document.getElementById("navi-step-dist").textContent = "Angekommen!";
+        document.getElementById("navi-step-text").textContent = planTargetLabel || "Du bist am Ziel";
+        return;
+      }
+
+      // Nächsten Abbiegepunkt vor uns suchen
+      if (myPos && planSteps.length > 0) {
+        // Bereits passierte Manöverpunkte am Anfang entfernen
+        while (planSteps.length > 1 && getMeters(myPos.lat, myPos.lng, planSteps[0].lat, planSteps[0].lng) < 22) {
+          planSteps.shift();
+        }
+        const nextStep = planSteps[0];
+        const distToTurn = getMeters(myPos.lat, myPos.lng, nextStep.lat, nextStep.lng);
+        const info = getManeuverInfo(nextStep);
+        document.getElementById("navi-icon").textContent = info.icon;
+        document.getElementById("navi-step-dist").textContent = `in ${formatDist(distToTurn)}`;
+        document.getElementById("navi-step-text").textContent = info.text;
+      } else {
+        document.getElementById("navi-icon").textContent = "🧭";
+        document.getElementById("navi-step-dist").textContent = formatDist(remMeters);
+        document.getElementById("navi-step-text").textContent = `Richtung ${planTargetLabel || "Ziel"}`;
       }
     }
 
@@ -1706,6 +2176,8 @@ ${trkpts}
     document.getElementById("btn-plan-clear").addEventListener("click", () => {
       planWaypoints.forEach(wp => map.removeLayer(wp.marker));
       planWaypoints = [];
+      planTargetLabel = "";
+      navTargetRiderId = null;
       document.getElementById("dest-input").value = "";
       recalculatePlannedRoute(false);
     });
@@ -1744,7 +2216,7 @@ ${trkpts}
     });
 
     // ==========================
-    // REC / AUFZEICHNUNG LOGIK
+    // REC / AUFZEICHNUNG LOGIK (HÄNDISCH STARTEN)
     // ==========================
     document.getElementById("btn-rec-menu").addEventListener("click", () => {
       document.getElementById("rec-drawer").classList.toggle("open");
@@ -1756,21 +2228,42 @@ ${trkpts}
       const statusLbl = document.getElementById("rec-status-label");
       const toggleBtn = document.getElementById("btn-rec-toggle");
 
-      badge.textContent = `${isRecording ? "REC" : "PAUSE"} · ${recordedTrack.length}`;
-      btn.classList.toggle("paused", !isRecording);
-      statusLbl.innerHTML = isRecording
-        ? `🔴 Aufzeichnung läuft (<span>${recordedTrack.length}</span> Punkte)`
-        : `⏸️ Pausiert (<span>${recordedTrack.length}</span> Punkte)`;
-      toggleBtn.textContent = isRecording ? "⏸️ Pause" : "▶️ Weiter";
+      if (isRecording) {
+        badge.textContent = `REC · ${recordedTrack.length}`;
+        btn.classList.remove("stopped");
+        statusLbl.innerHTML = `🔴 Aufzeichnung läuft (<span>${recordedTrack.length}</span> Punkte)`;
+        toggleBtn.textContent = "⏸️ Pause";
+        toggleBtn.classList.remove("green");
+      } else {
+        badge.textContent = recordedTrack.length > 0 ? `PAUSE · ${recordedTrack.length}` : "REC AUS";
+        btn.classList.add("stopped");
+        statusLbl.innerHTML = recordedTrack.length > 0
+          ? `⏸️ Pausiert (<span>${recordedTrack.length}</span> Punkte)`
+          : `⏹️ Aufzeichnung aus (händisch starten)`;
+        toggleBtn.textContent = "▶️ Start";
+        toggleBtn.classList.add("green");
+      }
     }
 
     document.getElementById("btn-rec-toggle").addEventListener("click", () => {
       isRecording = !isRecording;
+      if (isRecording && myPos) {
+        // Sofort aktuellen Punkt als Startpunkt setzen
+        lastTrackPos = { lat: myPos.lat, lng: myPos.lng };
+        recordedTrack.push({
+          lat: myPos.lat,
+          lng: myPos.lng,
+          ele: myPos.alt || null,
+          time: new Date().toISOString()
+        });
+        recordedPolyline.addLatLng([myPos.lat, myPos.lng]);
+      }
       updateRecUI();
     });
 
     document.getElementById("btn-rec-reset").addEventListener("click", () => {
       if (confirm("Aktuelle Tour-Aufzeichnung und Tageskilometer auf 0 zurücksetzen?")) {
+        isRecording = false;
         recordedTrack = [];
         totalDistanceMeters = 0;
         lastTrackPos = null;
@@ -1782,7 +2275,7 @@ ${trkpts}
 
     document.getElementById("btn-export-gpx").addEventListener("click", () => {
       if (recordedTrack.length < 2) {
-        alert("Es wurden noch zu wenige GPS-Punkte aufgezeichnet. Bewege dich zuerst ein Stück draußen mit aktivem GPS.");
+        alert("Noch keine aufgezeichneten GPS-Punkte vorhanden. Tippe zuerst oben auf „REC AUS“ → „▶️ Start“.");
         return;
       }
       const dateStr = new Date().toISOString().slice(0, 10);
@@ -1844,14 +2337,17 @@ ${trkpts}
 
     document.getElementById("clear-pin-btn").addEventListener("click", () => clearMeetingPin(true));
 
-    document.getElementById("nav-pin-btn").addEventListener("click", () => {
+    document.getElementById("nav-pin-btn").addEventListener("click", async () => {
       if (!meetingPinData) return;
-      const { lat, lng } = meetingPinData;
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const url = isIOS
-        ? `https://maps.apple.com/?daddr=${lat},${lng}&dirflg=w`
-        : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=bicycling`;
-      window.open(url, "_blank");
+      const startPos = myPos || { lat: map.getCenter().lat, lng: map.getCenter().lng };
+      navTargetRiderId = null;
+      planTargetLabel = `Treffpunkt (${meetingPinData.by})`;
+      planWaypoints.forEach(wp => map.removeLayer(wp.marker));
+      planWaypoints = [];
+      addPlanWaypoint(startPos.lat, startPos.lng, false);
+      addPlanWaypoint(meetingPinData.lat, meetingPinData.lng, false);
+      await recalculatePlannedRoute(false);
+      startActiveNavigation();
     });
 
     function drawGroupRoute(pts, fitMap = false) {
@@ -1929,6 +2425,16 @@ ${trkpts}
 
       riders[id] = { ...riders[id], ...data, updatedAt: Date.now() };
 
+      // Wenn wir aktiv zu diesem Kollegen navigieren, Route alle 10 Sek. auf seinen neuen Standort aktualisieren
+      if (isNavigating && navTargetRiderId === id && myPos && Date.now() - lastRerouteTime > 10000) {
+        lastRerouteTime = Date.now();
+        planWaypoints.forEach(wp => map.removeLayer(wp.marker));
+        planWaypoints = [];
+        addPlanWaypoint(myPos.lat, myPos.lng, false);
+        addPlanWaypoint(data.lat, data.lng, false);
+        recalculatePlannedRoute(false).then(() => updateNavigationHUD());
+      }
+
       if (!isMe && data.status && data.status !== prevStatus) {
         document.getElementById("rider-alert-text").textContent = `${data.name}: ${data.status}`;
         document.getElementById("rider-alert-banner").classList.add("show");
@@ -1940,19 +2446,26 @@ ${trkpts}
     function renderRiderList() {
       const listContainer = document.getElementById("rider-list-items");
       const ids = Object.keys(riders);
-      document.getElementById("display-count").textContent = `${ids.length} Fahrer aktiv · Menü`;
+      document.getElementById("display-count").textContent = `${ids.length} Fahrer aktiv · Ziele & Menü`;
 
       listContainer.innerHTML = ids.map(id => {
         const r = riders[id];
         const isMe = id === myId;
         const dist = isMe ? "Du selbst" : (myPos ? `${formatDist(getMeters(myPos.lat, myPos.lng, r.lat, r.lng))} entfernt` : "Aktiv");
+        const navBtnHtml = isMe
+          ? ""
+          : `<button class="rider-nav-btn" onclick="event.stopPropagation(); selectRiderAsDestination('${id}')">🧭 Hinnavigieren</button>`;
+
         return `
-          <div class="rider-item" onclick="focusRider('${id}')">
-            <div class="rider-info">
+          <div class="rider-item">
+            <div class="rider-info" onclick="focusRider('${id}')">
               <span class="rider-swatch" style="background:${r.status ? '#ef4444' : r.color}"></span>
-              <span class="rider-name">${r.name} ${isMe ? "(Du)" : ""} ${r.status ? `· ${r.status}` : ""}</span>
+              <div class="rider-text-col">
+                <span class="rider-name">${escapeHtml(r.name)} ${isMe ? "(Du)" : ""} ${r.status ? `· ${escapeHtml(r.status)}` : ""}</span>
+                <span class="rider-meta">${dist}</span>
+              </div>
             </div>
-            <span class="rider-meta">${dist}</span>
+            ${navBtnHtml}
           </div>
         `;
       }).join("");
@@ -2043,12 +2556,14 @@ ${trkpts}
         if (riders[id].marker) map.removeLayer(riders[id].marker);
         delete riders[id];
       });
+      photoMarkers.forEach(m => map.removeLayer(m));
+      photoMarkers = [];
+
       if (gpxLayer) { map.removeLayer(gpxLayer); gpxLayer = null; }
       clearMeetingPin(false);
-      planWaypoints.forEach(wp => map.removeLayer(wp.marker));
-      planWaypoints = [];
-      planRouteCoords = [];
-      planPolyline.setLatLngs([]);
+      stopActiveNavigation();
+
+      isRecording = false;
       recordedTrack = [];
       totalDistanceMeters = 0;
       lastTrackPos = null;
@@ -2056,14 +2571,13 @@ ${trkpts}
       myStatus = "";
       sharedRoutePoints = null;
       recordedPolyline.setLatLngs([]);
+      updateRecUI();
 
-      // Chat zurücksetzen
       unreadCount = 0;
       toggleChatPanel(false);
       document.getElementById("chat-unread-badge").classList.remove("show");
-      document.getElementById("chat-messages").innerHTML = `<div class="chat-empty">Noch keine Nachrichten. Schreib deiner Gruppe oder nutze einen Schnell-Button unten.</div>`;
+      document.getElementById("chat-messages").innerHTML = `<div class="chat-empty">Schreib deiner Gruppe oder nutze unten den Kamera-Button für Live-Fotos.</div>`;
 
-      // UI zurück auf Startzustand
       document.getElementById("dist-val").textContent = "0.0";
       document.getElementById("speed-val").textContent = "0";
       document.getElementById("alt-val").textContent = "—";
@@ -2105,12 +2619,14 @@ ${trkpts}
       localStorage.setItem("gp_name", myName);
       localStorage.setItem("gp_room", roomCode);
 
+      isRecording = false;
+      updateRecUI();
+
       document.getElementById("display-room").textContent = `#${roomCode}`;
       document.getElementById("login-screen").style.display = "none";
       document.getElementById("hud-top").style.display = "flex";
       document.getElementById("hud-bottom").style.display = "flex";
       document.getElementById("side-controls").style.display = "flex";
-      updateRecUI();
 
       setTimeout(() => map.invalidateSize(), 150);
 
@@ -2127,6 +2643,11 @@ ${trkpts}
         .on("broadcast", { event: "chat" }, ({ payload }) => {
           if (payload && payload.senderId !== myId) {
             appendChatMessage(payload);
+          }
+        })
+        .on("broadcast", { event: "photo" }, ({ payload }) => {
+          if (payload && payload.senderId !== myId) {
+            handleIncomingPhoto(payload);
           }
         })
         .on("broadcast", { event: "leave" }, ({ payload }) => {
@@ -2181,6 +2702,7 @@ ${trkpts}
               document.getElementById("alt-val").textContent = Math.round(alt);
             }
 
+            // Nur aufzeichnen, wenn händisch auf "Start" gedrückt wurde!
             if (isRecording && (!pos.coords.accuracy || pos.coords.accuracy < 50)) {
               if (lastTrackPos) {
                 const moved = getMeters(lastTrackPos.lat, lastTrackPos.lng, pos.coords.latitude, pos.coords.longitude);
@@ -2214,6 +2736,7 @@ ${trkpts}
             myPos = {
               lat: pos.coords.latitude,
               lng: pos.coords.longitude,
+              alt,
               speed: kmh,
               heading: pos.coords.heading
             };
@@ -2222,8 +2745,12 @@ ${trkpts}
               setMeetingPin(meetingPinData, false);
             }
 
+            if (isNavigating) {
+              updateNavigationHUD();
+            }
+
             if (followMe) {
-              map.setView([myPos.lat, myPos.lng], Math.max(map.getZoom(), 15));
+              map.setView([myPos.lat, myPos.lng], Math.max(map.getZoom(), isNavigating ? 17 : 15));
             }
             broadcastPosition();
           },
@@ -2255,7 +2782,7 @@ ${trkpts}
       followMe = true;
       document.getElementById("btn-center").classList.add("active");
       if (myPos) {
-        map.flyTo([myPos.lat, myPos.lng], 16, { duration: 0.6 });
+        map.flyTo([myPos.lat, myPos.lng], isNavigating ? 17 : 16, { duration: 0.6 });
       }
     });
 
