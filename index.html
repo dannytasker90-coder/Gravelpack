@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -1882,6 +1883,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
       <span id="layer-label">Topo</span>
     </button>
+
+    <button class="fab-btn" id="btn-profile" title="Fahrer-Profil & Archiv">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profil</span>
+    </button>
   </div>
 
   <!-- Safety & Kompass Einstellungen Panel -->
@@ -2152,6 +2158,12 @@
       };
       try {
         localStorage.setItem("gp_active_session", JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function clearActiveSessionState() {
+      try {
+        localStorage.removeItem("gp_active_session");
       } catch (e) {}
     }
 
@@ -3684,7 +3696,7 @@ ${trkpts}
               heading: pos.coords.heading
             };
 
-            // Hier wird die Karte live in Fahrtrichtung gedreht, wenn Kompass-Modus "Drehen" aktiv ist
+            // Karte live in Fahrtrichtung drehen
             updateCompassOrientation(pos.coords.heading);
 
             if (meetingPinData) {
