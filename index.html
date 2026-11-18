@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#060911" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>GravelPack — Ultra Safety & Group Cockpit</title>
+  <title>GravelPack — Ultra Safety & Tour Archive</title>
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -15,7 +15,7 @@
     :root {
       --bg-base: #060911;
       --glass-bg: rgba(11, 17, 30, 0.82);
-      --glass-strong: rgba(11, 17, 30, 0.95);
+      --glass-strong: rgba(11, 17, 30, 0.96);
       --glass-border: rgba(255, 255, 255, 0.13);
       --glass-highlight: rgba(255, 255, 255, 0.06);
       --accent: #f59e0b;
@@ -90,12 +90,12 @@
     .login-card {
       width: 100%;
       max-width: 400px;
-      background: rgba(15, 23, 42, 0.86);
+      background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 30px;
-      padding: 32px 24px;
+      padding: 28px 22px;
       box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
@@ -112,11 +112,11 @@
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .login-card h1 {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 800;
       letter-spacing: -0.03em;
       margin-bottom: 6px;
@@ -127,13 +127,13 @@
 
     .login-card p {
       color: var(--text-muted);
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 24px;
+      font-size: 13.5px;
+      line-height: 1.45;
+      margin-bottom: 20px;
     }
 
     .input-group {
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .input-group label {
@@ -143,7 +143,7 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      margin-bottom: 7px;
+      margin-bottom: 6px;
     }
 
     .input-group input {
@@ -151,7 +151,7 @@
       background: rgba(2, 6, 23, 0.65);
       border: 1px solid var(--glass-border);
       border-radius: var(--radius-md);
-      padding: 15px 16px;
+      padding: 14px 15px;
       color: var(--text-main);
       font-size: 16px;
       font-weight: 600;
@@ -166,16 +166,29 @@
 
     .btn-primary {
       width: 100%;
-      margin-top: 8px;
+      margin-top: 6px;
       background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
       color: #060911;
       border: none;
       border-radius: var(--radius-md);
-      padding: 16px;
+      padding: 15px;
       font-size: 16px;
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 12px 28px -6px var(--accent-glow);
+    }
+
+    .btn-secondary-login {
+      width: 100%;
+      margin-top: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     /* Oberes Cockpit HUD */
@@ -253,10 +266,6 @@
       letter-spacing: 0.04em;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);
-    }
-
-    .sos-top-btn:active {
-      transform: scale(0.94);
     }
 
     .rec-trigger-btn {
@@ -538,7 +547,7 @@
 
     .rec-actions {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
     }
 
@@ -678,6 +687,112 @@
     }
 
     /* ==========================
+       FAHRER-PROFIL & TOUREN-ARCHIV MODAL
+       ========================== */
+    #profile-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1350;
+      background: rgba(6, 9, 17, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: none;
+      flex-direction: column;
+      padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+      gap: 14px;
+    }
+
+    #profile-modal.open {
+      display: flex;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .profile-user-card {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 22px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .profile-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .p-stat-box {
+      background: rgba(2, 6, 23, 0.55);
+      border-radius: 14px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .p-stat-val {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--accent);
+    }
+
+    .p-stat-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    #saved-tours-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 2px;
+    }
+
+    .tour-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .tour-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .tour-card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .tour-card-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .tour-card-actions {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 0.7fr;
+      gap: 6px;
+    }
+
+    /* ==========================
        KOMPASS ROSE (N O S W)
        ========================== */
     #compass-widget {
@@ -725,9 +840,7 @@
       color: var(--accent);
     }
 
-    /* ==========================
-       SAFETY & KOMPASS EINSTELLUNGEN
-       ========================== */
+    /* Safety & Kompass Settings */
     #safety-panel {
       position: fixed;
       bottom: max(86px, calc(env(safe-area-inset-bottom) + 74px));
@@ -802,9 +915,7 @@
       color: #060911;
     }
 
-    /* ==========================
-       STURZ-COUNTDOWN OVERLAY
-       ========================== */
+    /* Sturz-Countdown Overlay */
     #crash-modal {
       position: fixed;
       inset: 0;
@@ -866,9 +977,7 @@
       cursor: pointer;
     }
 
-    /* ==========================
-       SOS NOTFALL-KARTE & 112 MODAL
-       ========================== */
+    /* SOS Notfall-Karte & 112 Modal */
     #sos-modal {
       position: fixed;
       inset: 0;
@@ -1185,7 +1294,7 @@
       box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
     }
 
-    /* Schwebende Seiten-Buttons (Kompass + Safety + Alle + Layer) */
+    /* Schwebende Seiten-Buttons */
     #side-controls {
       position: fixed;
       right: 12px;
@@ -1273,15 +1382,15 @@
       background: rgba(245, 158, 11, 0.18);
     }
 
-    /* Unteres Action-Dock */
+    /* Unteres Action-Dock (7 kompakte Buttons inkl. Profil) */
     #hud-bottom {
       position: fixed;
       bottom: max(12px, env(safe-area-inset-bottom));
-      left: 8px;
-      right: 8px;
+      left: 6px;
+      right: 6px;
       z-index: 500;
       display: none;
-      gap: 5px;
+      gap: 4px;
     }
 
     .dock-btn {
@@ -1291,8 +1400,8 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 10px 2px;
+      border-radius: 15px;
+      padding: 9px 1px;
       color: var(--text-main);
       display: flex;
       flex-direction: column;
@@ -1326,27 +1435,27 @@
     }
 
     .dock-btn svg {
-      width: 18px;
-      height: 18px;
+      width: 17px;
+      height: 17px;
       stroke-width: 2.2;
     }
 
     .dock-btn span {
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 700;
     }
 
     .unread-badge {
       position: absolute;
-      top: 5px;
-      right: 6px;
-      min-width: 16px;
-      height: 16px;
-      padding: 0 4px;
+      top: 4px;
+      right: 5px;
+      min-width: 15px;
+      height: 15px;
+      padding: 0 3px;
       border-radius: 999px;
       background: var(--red);
       color: #fff;
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 900;
       display: none;
       align-items: center;
@@ -1540,7 +1649,7 @@
     <div class="login-card">
       <div class="brand-badge">🛡️ GravelPack Safety Pro</div>
       <h1>Group Ride Cockpit</h1>
-      <p>Sturz-Erkennung, Nachzügler-Radar, SOS-Rettungskarte, N·O·S·W Kompass & Turn-by-Turn Navi.</p>
+      <p>Mit Auto-Resume beim App-Wechsel, Touren-Profil, Sturz-Alarm, Nachzügler-Radar & N·O·S·W Kompass.</p>
 
       <div class="input-group">
         <label for="rider-name">Dein Fahrername</label>
@@ -1553,7 +1662,47 @@
       </div>
 
       <button class="btn-primary" id="join-btn">Tour starten & verbinden</button>
+      <button class="btn-secondary-login" id="btn-open-profile-login">🏆 Mein Profil & gespeicherte Touren</button>
     </div>
+  </div>
+
+  <!-- Fahrer-Profil & Gespeicherte Touren Modal -->
+  <div id="profile-modal">
+    <div class="profile-header">
+      <span style="font-size: 18px; font-weight: 900; color: var(--accent);">🏆 Fahrer-Profil & Archiv</span>
+      <button class="banner-btn" style="padding: 7px 12px; font-size: 13px;" onclick="document.getElementById('profile-modal').classList.remove('open')">✕ Schließen</button>
+    </div>
+
+    <div class="profile-user-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Fahrer</div>
+          <div id="profile-rider-name" style="font-size: 20px; font-weight: 900;">Danny</div>
+        </div>
+        <button class="mini-btn green" id="btn-save-current-from-profile" style="padding: 8px 12px;">💾 Aktuelle Tour sichern</button>
+      </div>
+
+      <div class="profile-stats-grid">
+        <div class="p-stat-box">
+          <div class="p-stat-val" id="prof-total-tours">0</div>
+          <div class="p-stat-lbl">Touren</div>
+        </div>
+        <div class="p-stat-box">
+          <div class="p-stat-val" id="prof-total-km">0.0</div>
+          <div class="p-stat-lbl">Gesamt km</div>
+        </div>
+        <div class="p-stat-box">
+          <div class="p-stat-val" id="prof-longest-km">0.0</div>
+          <div class="p-stat-lbl">Längste km</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
+      Gespeicherte Touren (Auf Karte laden oder GPX)
+    </div>
+
+    <div id="saved-tours-list"></div>
   </div>
 
   <!-- Sturz-Countdown Vollbild-Warnung -->
@@ -1614,7 +1763,7 @@
         <div class="hud-right-group">
           <button class="sos-top-btn" id="btn-sos-trigger">🚨 SOS</button>
 
-          <button class="rec-trigger-btn stopped" id="btn-rec-menu" title="Aufzeichnung starten / exportieren">
+          <button class="rec-trigger-btn stopped" id="btn-rec-menu" title="Aufzeichnung starten / speichern">
             <span class="rec-dot"></span>
             <span id="rec-badge-text">REC AUS</span>
           </button>
@@ -1659,7 +1808,7 @@
       </div>
     </div>
 
-    <!-- Aufzeichnungs-Steuerung (Händischer Start) -->
+    <!-- Aufzeichnungs-Steuerung (inkl. Speichern im Profil) -->
     <div id="rec-drawer">
       <div class="rec-header">
         <span id="rec-status-label">⏹️ Aufzeichnung bereit (<span>0</span> Punkte)</span>
@@ -1667,8 +1816,9 @@
       </div>
       <div class="rec-actions">
         <button class="mini-btn green" id="btn-rec-toggle">▶️ Start</button>
-        <button class="mini-btn danger" id="btn-rec-reset">🗑️ Reset</button>
+        <button class="mini-btn amber" id="btn-save-tour-profile">💾 Im Profil speichern</button>
         <button class="mini-btn" id="btn-export-gpx">⬇ GPX Export</button>
+        <button class="mini-btn danger" id="btn-rec-reset">🗑️ Reset</button>
       </div>
     </div>
 
@@ -1717,7 +1867,6 @@
 
   <!-- Schwebende Seiten-Buttons (Kompass N O S W + Safety + Alle + Layer) -->
   <div id="side-controls">
-    <!-- Einstellbarer N O S W Kompass -->
     <div id="compass-widget" title="Kompass-Modus wechseln (N / O / S / W)">
       <div id="compass-dial">
         <span class="c-dir c-n">N</span>
@@ -1728,7 +1877,6 @@
       </div>
     </div>
 
-    <!-- Safety & Kompass Settings -->
     <button class="fab-btn" id="btn-safety-settings" title="Safety & Kompass einstellen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       <span>Safety</span>
@@ -1854,7 +2002,7 @@
     </div>
   </div>
 
-  <!-- Unteres Action Dock -->
+  <!-- Unteres Action Dock (inkl. Profil-Button) -->
   <div id="hud-bottom">
     <button class="dock-btn" id="btn-chat">
       <span class="unread-badge" id="chat-unread-badge">0</span>
@@ -1887,9 +2035,9 @@
       <span>Fokus</span>
     </button>
 
-    <button class="dock-btn" id="btn-wake">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      <span id="label-wake">Wach</span>
+    <button class="dock-btn" id="btn-profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profil</span>
     </button>
   </div>
 
@@ -1905,9 +2053,16 @@
     const SUPABASE_KEY = "sb_publishable_-tOGnrHsuv8vSYI284PW-w_TvmzvQwN";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const myId = "rider_" + Math.random().toString(36).substring(2, 10);
+    // Beständige Fahrer-ID für nahtloses Wiederverbinden nach App-Wechsel
+    let myId = localStorage.getItem("gp_rider_id");
+    if (!myId) {
+      myId = "rider_" + Math.random().toString(36).substring(2, 10);
+      localStorage.setItem("gp_rider_id", myId);
+    }
+
     const colors = ["#f59e0b", "#38bdf8", "#a855f7", "#ec4899", "#10b981", "#f43f5e"];
-    const myColor = colors[Math.floor(Math.random() * colors.length)];
+    const myColor = localStorage.getItem("gp_color") || colors[Math.floor(Math.random() * colors.length)];
+    localStorage.setItem("gp_color", myColor);
 
     let myName = "";
     let roomCode = "";
@@ -1930,7 +2085,7 @@
     let unreadCount = 0;
     let photoMarkers = [];
 
-    // Recording State (Händisch starten)
+    // Recording State
     let isRecording = false;
     let recordedTrack = [];
     let recordedPolyline = null;
@@ -1948,8 +2103,8 @@
     let navTargetRiderId = null;
     let lastRerouteTime = 0;
 
-    // Safety & Kompass Settings (mit LocalStorage-Speicherung)
-    let compassMode = localStorage.getItem("gp_compass") || "north"; // 'north' | 'heading' | 'off'
+    // Safety & Kompass Settings
+    let compassMode = localStorage.getItem("gp_compass") || "north";
     let crashDetectEnabled = localStorage.getItem("gp_crash") !== "false";
     let stragglerLimitMeters = parseInt(localStorage.getItem("gp_straggler") || "500", 10);
 
@@ -1989,6 +2144,176 @@
       weight: 6,
       opacity: 0.95
     }).addTo(map);
+
+    // ==========================
+    // AUTO-RESUME / ZUSTAND SPEICHERN (BEI APP-WECHSEL ODER RELOAD)
+    // ==========================
+    function saveActiveSessionState() {
+      if (!roomCode) return;
+      const state = {
+        active: true,
+        myName,
+        roomCode,
+        myStatus,
+        isRecording,
+        totalDistanceMeters,
+        recordedTrack: recordedTrack.slice(-3000), // Bis zu 3000 GPS-Punkte lokal sichern
+        sharedRoutePoints,
+        meetingPinData,
+        isNavigating,
+        planTargetLabel,
+        planRouteCoords: planRouteCoords.slice(-500),
+        savedAt: Date.now()
+      };
+      try {
+        localStorage.setItem("gp_active_session", JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function clearActiveSessionState() {
+      localStorage.removeItem("gp_active_session");
+    }
+
+    // Beim Verlassen/Minimieren der App sofort Zustand sichern & beim Zurückkehren GPS/Live neu anstoßen
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        saveActiveSessionState();
+      } else if (document.visibilityState === "visible" && roomCode) {
+        map.invalidateSize();
+        if (channel) {
+          broadcastPosition();
+          channel.send({ type: "broadcast", event: "request_state", payload: {} });
+        }
+      }
+    });
+    window.addEventListener("pagehide", saveActiveSessionState);
+
+    // ==========================
+    // FAHRER-PROFIL & TOUREN-ARCHIV
+    // ==========================
+    function getSavedTours() {
+      try {
+        return JSON.parse(localStorage.getItem("gp_saved_tours") || "[]");
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function setSavedTours(tours) {
+      localStorage.setItem("gp_saved_tours", JSON.stringify(tours));
+    }
+
+    function saveCurrentTrackToProfile() {
+      if (recordedTrack.length < 2) {
+        alert("Es gibt noch keine aufgezeichneten GPS-Punkte zum Speichern. Starte oben über „REC“ zuerst die Aufzeichnung.");
+        return;
+      }
+      const km = Number((totalDistanceMeters / 1000).toFixed(2));
+      const defaultTitle = `Gravel-Tour #${roomCode || "Solo"} (${new Date().toLocaleDateString("de-DE")})`;
+      const customTitle = prompt("Wie soll diese Tour in deinem Profil heißen?", defaultTitle);
+      if (customTitle === null) return;
+
+      const tours = getSavedTours();
+      tours.unshift({
+        id: "tour_" + Date.now(),
+        title: customTitle.trim() || defaultTitle,
+        date: new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }),
+        km,
+        pointsCount: recordedTrack.length,
+        points: simplifyRoute(recordedTrack.map(p => [p.lat, p.lng]), 500)
+      });
+      setSavedTours(tours);
+      renderProfileModal();
+      alert(`✅ „${customTitle.trim() || defaultTitle}“ (${km} km) wurde in deinem Profil gespeichert!`);
+    }
+
+    function renderProfileModal() {
+      const nameEl = document.getElementById("rider-name").value.trim() || myName || localStorage.getItem("gp_name") || "Gravel-Fahrer";
+      document.getElementById("profile-rider-name").textContent = nameEl;
+
+      const tours = getSavedTours();
+      const totalKm = tours.reduce((sum, t) => sum + (Number(t.km) || 0), 0);
+      const longestKm = tours.reduce((max, t) => Math.max(max, Number(t.km) || 0), 0);
+
+      document.getElementById("prof-total-tours").textContent = tours.length;
+      document.getElementById("prof-total-km").textContent = totalKm.toFixed(1);
+      document.getElementById("prof-longest-km").textContent = longestKm.toFixed(1);
+
+      const saveCurrBtn = document.getElementById("btn-save-current-from-profile");
+      saveCurrBtn.style.display = recordedTrack.length >= 2 ? "inline-block" : "none";
+
+      const listEl = document.getElementById("saved-tours-list");
+      if (tours.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:30px 10px;">Noch keine Touren gespeichert.<br>Starte eine Fahrt mit „REC“ und speichere sie danach hier im Archiv!</div>`;
+        return;
+      }
+
+      listEl.innerHTML = tours.map(t => `
+        <div class="tour-card">
+          <div class="tour-card-top">
+            <div>
+              <div class="tour-card-title">${escapeHtml(t.title)}</div>
+              <div class="tour-card-meta">📅 ${escapeHtml(t.date)} · 📏 ${Number(t.km).toFixed(1)} km · 📍 ${t.pointsCount} Punkte</div>
+            </div>
+          </div>
+          <div class="tour-card-actions">
+            <button class="mini-btn green" onclick="loadSavedTourOnMap('${t.id}')">🗺️ Auf Karte laden</button>
+            <button class="mini-btn" onclick="exportSavedTourGPX('${t.id}')">⬇ GPX</button>
+            <button class="mini-btn danger" onclick="deleteSavedTour('${t.id}')">🗑️</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    window.loadSavedTourOnMap = function(tourId) {
+      const tour = getSavedTours().find(t => t.id === tourId);
+      if (!tour || !tour.points || tour.points.length < 2) return;
+
+      document.getElementById("profile-modal").classList.remove("open");
+
+      if (!roomCode) {
+        // Falls man noch auf dem Startbildschirm ist, direkt im Solo-Modus starten & Tour zeigen
+        document.getElementById("rider-name").value = document.getElementById("rider-name").value.trim() || "Fahrer";
+        document.getElementById("group-code").value = document.getElementById("group-code").value.trim() || "SOLO" + Math.floor(100 + Math.random() * 900);
+        startSession(false);
+      }
+
+      drawGroupRoute(tour.points, true);
+      if (channel) {
+        channel.send({
+          type: "broadcast",
+          event: "route_sync",
+          payload: { by: myName, pts: tour.points }
+        });
+      }
+    };
+
+    window.exportSavedTourGPX = function(tourId) {
+      const tour = getSavedTours().find(t => t.id === tourId);
+      if (!tour || !tour.points) return;
+      const safeName = tour.title.replace(/[^a-zA-Z0-9_-]/g, "_");
+      downloadGPXFile(tour.points, tour.title, `${safeName}.gpx`);
+    };
+
+    window.deleteSavedTour = function(tourId) {
+      if (!confirm("Diese gespeicherte Tour wirklich aus deinem Profil löschen?")) return;
+      const remaining = getSavedTours().filter(t => t.id !== tourId);
+      setSavedTours(remaining);
+      renderProfileModal();
+    };
+
+    document.getElementById("btn-profile").addEventListener("click", () => {
+      renderProfileModal();
+      document.getElementById("profile-modal").classList.add("open");
+    });
+
+    document.getElementById("btn-open-profile-login").addEventListener("click", () => {
+      renderProfileModal();
+      document.getElementById("profile-modal").classList.add("open");
+    });
+
+    document.getElementById("btn-save-tour-profile").addEventListener("click", saveCurrentTrackToProfile);
+    document.getElementById("btn-save-current-from-profile").addEventListener("click", saveCurrentTrackToProfile);
 
     // ==========================
     // N · O · S · W KOMPASS & EINSTELLUNGEN
@@ -2062,7 +2387,6 @@
       document.getElementById("safety-panel").classList.toggle("open");
     });
 
-    // Gespeicherte Safety- & Kompass-Werte initial anwenden
     setCompassMode(compassMode);
     setCrashDetect(crashDetectEnabled);
     setStragglerLimit(stragglerLimitMeters);
@@ -2127,12 +2451,10 @@
       const reasonText = isAutoCrash ? "🚨 AUTO-SOS: Sturz / Stillstand!" : "🚨 NOTFALL-SOS!";
       setMyStatus(reasonText);
 
-      // Notfall-Pin auf der Karte für alle setzen
       if (myPos) {
         setMeetingPin({ lat: myPos.lat, lng: myPos.lng, by: `${myName} (SOS)`, isSos: true }, true);
         document.getElementById("sos-coords-text").textContent = `${myPos.lat.toFixed(6)}, ${myPos.lng.toFixed(6)}`;
 
-        // Nächste Adresse für 112-Rettungskette ermitteln
         try {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${myPos.lat}&lon=${myPos.lng}`, {
             headers: { "Accept-Language": "de" }
@@ -2160,7 +2482,6 @@
       document.getElementById("sos-modal").classList.remove("open");
     });
 
-    // Nachzügler-Prüfung
     function checkStragglers() {
       if (!myPos || stragglerLimitMeters <= 0) return;
       const otherIds = Object.keys(riders).filter(id => id !== myId);
@@ -2690,6 +3011,7 @@ ${trkpts}
         map.flyTo([myPos.lat, myPos.lng], 17, { duration: 0.7 });
       }
       updateNavigationHUD();
+      saveActiveSessionState();
     }
 
     function stopActiveNavigation() {
@@ -2701,6 +3023,7 @@ ${trkpts}
       planRouteCoords = [];
       planSteps = [];
       planPolyline.setLatLngs([]);
+      saveActiveSessionState();
     }
 
     document.getElementById("btn-start-navi").addEventListener("click", startActiveNavigation);
@@ -2776,6 +3099,7 @@ ${trkpts}
       drawGroupRoute(planRouteCoords, true);
       const compactPts = simplifyRoute(planRouteCoords, 220);
       sharedRoutePoints = compactPts;
+      saveActiveSessionState();
       if (channel) {
         channel.send({
           type: "broadcast",
@@ -2793,7 +3117,7 @@ ${trkpts}
     });
 
     // ==========================
-    // REC / AUFZEICHNUNG LOGIK (HÄNDISCH STARTEN)
+    // REC / AUFZEICHNUNG LOGIK
     // ==========================
     document.getElementById("btn-rec-menu").addEventListener("click", () => {
       document.getElementById("rec-drawer").classList.toggle("open");
@@ -2835,6 +3159,7 @@ ${trkpts}
         recordedPolyline.addLatLng([myPos.lat, myPos.lng]);
       }
       updateRecUI();
+      saveActiveSessionState();
     });
 
     document.getElementById("btn-rec-reset").addEventListener("click", () => {
@@ -2846,6 +3171,7 @@ ${trkpts}
         recordedPolyline.setLatLngs([]);
         document.getElementById("dist-val").textContent = "0.0";
         updateRecUI();
+        saveActiveSessionState();
       }
     });
 
@@ -2896,6 +3222,7 @@ ${trkpts}
       bannerEl.classList.toggle("pin-style", !data.isSos);
       document.getElementById("pin-banner-text").textContent = `${prefix} (${data.by})${distInfo}`;
       bannerEl.classList.add("show");
+      saveActiveSessionState();
 
       if (broadcast && channel) {
         channel.send({ type: "broadcast", event: "pin", payload: data });
@@ -2909,6 +3236,7 @@ ${trkpts}
       }
       meetingPinData = null;
       document.getElementById("pin-banner").classList.remove("show");
+      saveActiveSessionState();
       if (broadcast && channel) {
         channel.send({ type: "broadcast", event: "pin_clear", payload: {} });
       }
@@ -2943,6 +3271,7 @@ ${trkpts}
 
       document.getElementById("btn-gpx").classList.add("active");
       document.getElementById("label-gpx").textContent = "Route";
+      saveActiveSessionState();
 
       if (fitMap) {
         followMe = false;
@@ -3087,6 +3416,7 @@ ${trkpts}
         btn.classList.remove("alert-active");
         lbl.textContent = "Status";
       }
+      saveActiveSessionState();
       broadcastPosition();
     };
 
@@ -3107,12 +3437,13 @@ ${trkpts}
     }
 
     // ==========================
-    // AUSLOGGEN / TOUR VERLASSEN
+    // AUSLOGGEN / TOUR BEWUSST VERLASSEN
     // ==========================
     document.getElementById("btn-logout").addEventListener("click", async () => {
       if (!confirm("Möchtest du die aktuelle Gruppen-Tour wirklich verlassen?")) return;
 
       cancelCrashCountdown();
+      clearActiveSessionState();
 
       if (channel) {
         await channel.send({ type: "broadcast", event: "leave", payload: { id: myId } });
@@ -3145,6 +3476,7 @@ ${trkpts}
       clearMeetingPin(false);
       stopActiveNavigation();
 
+      roomCode = "";
       isRecording = false;
       recordedTrack = [];
       totalDistanceMeters = 0;
@@ -3169,8 +3501,6 @@ ${trkpts}
       document.getElementById("label-gpx").textContent = "GPX";
       document.getElementById("btn-status").classList.remove("alert-active");
       document.getElementById("label-status").textContent = "Status";
-      document.getElementById("btn-wake").classList.remove("active");
-      document.getElementById("label-wake").textContent = "Wach";
 
       document.getElementById("rider-drawer").classList.remove("open");
       document.getElementById("rec-drawer").classList.remove("open");
@@ -3189,10 +3519,12 @@ ${trkpts}
       document.getElementById("login-screen").style.display = "flex";
     });
 
-    // Tour starten
-    document.getElementById("join-btn").addEventListener("click", () => {
-      const nameInput = document.getElementById("rider-name").value.trim();
-      const roomInput = document.getElementById("group-code").value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, "");
+    // ==========================
+    // TOUR STARTEN (MIT AUTO-RESUME)
+    // ==========================
+    function startSession(restoredState = null) {
+      const nameInput = restoredState ? restoredState.myName : document.getElementById("rider-name").value.trim();
+      const roomInput = restoredState ? restoredState.roomCode : document.getElementById("group-code").value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, "");
 
       if (!nameInput || !roomInput) {
         alert("Bitte gib deinen Namen und einen Gruppen-Code ein.");
@@ -3204,7 +3536,25 @@ ${trkpts}
       localStorage.setItem("gp_name", myName);
       localStorage.setItem("gp_room", roomCode);
 
-      isRecording = false;
+      if (restoredState) {
+        myStatus = restoredState.myStatus || "";
+        isRecording = Boolean(restoredState.isRecording);
+        totalDistanceMeters = Number(restoredState.totalDistanceMeters) || 0;
+        recordedTrack = Array.isArray(restoredState.recordedTrack) ? restoredState.recordedTrack : [];
+        if (recordedTrack.length > 0) {
+          const lastPt = recordedTrack[recordedTrack.length - 1];
+          lastTrackPos = { lat: lastPt.lat, lng: lastPt.lng };
+          recordedPolyline.setLatLngs(recordedTrack.map(p => [p.lat, p.lng]));
+        }
+        document.getElementById("dist-val").textContent = (totalDistanceMeters / 1000).toFixed(1);
+        if (myStatus) {
+          document.getElementById("btn-status").classList.add("alert-active");
+          document.getElementById("label-status").textContent = "Alert";
+        }
+      } else {
+        isRecording = false;
+      }
+
       recentSpeeds = [];
       lastMovementTime = Date.now();
       updateRecUI();
@@ -3215,7 +3565,20 @@ ${trkpts}
       document.getElementById("hud-bottom").style.display = "flex";
       document.getElementById("side-controls").style.display = "flex";
 
-      setTimeout(() => map.invalidateSize(), 150);
+      setTimeout(() => {
+        map.invalidateSize();
+        if (restoredState) {
+          if (restoredState.sharedRoutePoints) drawGroupRoute(restoredState.sharedRoutePoints, false);
+          if (restoredState.meetingPinData) setMeetingPin(restoredState.meetingPinData, false);
+          if (restoredState.isNavigating && Array.isArray(restoredState.planRouteCoords) && restoredState.planRouteCoords.length >= 2) {
+            planTargetLabel = restoredState.planTargetLabel || "Gespeichertes Ziel";
+            planRouteCoords = restoredState.planRouteCoords;
+            planPolyline.setLatLngs(planRouteCoords);
+            startActiveNavigation();
+          }
+        }
+        saveActiveSessionState();
+      }, 150);
 
       channel = supabaseClient.channel(`gravelpack_${roomCode}`, {
         config: { broadcast: { self: false } }
@@ -3284,7 +3647,6 @@ ${trkpts}
             const kmh = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
             document.getElementById("speed-val").textContent = kmh;
 
-            // Sturz-Erkennung: Abrupter Geschwindigkeitsabfall (>15 km/h -> 0 km/h)
             recentSpeeds.push({ speed: kmh, time: Date.now() });
             if (recentSpeeds.length > 6) recentSpeeds.shift();
             const maxRecent = Math.max(...recentSpeeds.map(s => s.speed));
@@ -3317,6 +3679,7 @@ ${trkpts}
                   });
                   recordedPolyline.addLatLng([pos.coords.latitude, pos.coords.longitude]);
                   updateRecUI();
+                  saveActiveSessionState();
                 }
               } else {
                 lastTrackPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -3328,6 +3691,7 @@ ${trkpts}
                 });
                 recordedPolyline.addLatLng([pos.coords.latitude, pos.coords.longitude]);
                 updateRecUI();
+                saveActiveSessionState();
               }
             }
 
@@ -3364,8 +3728,8 @@ ${trkpts}
       heartbeatTimer = setInterval(() => {
         broadcastPosition();
         checkStragglers();
+        saveActiveSessionState();
 
-        // Stillstands-Wächter bei aktiver Aufzeichnung (über 60 Sek. ohne Bewegung)
         if (isRecording && crashDetectEnabled && !crashAlertActive && Date.now() - lastMovementTime > 60000) {
           triggerCrashCountdown();
         }
@@ -3379,7 +3743,22 @@ ${trkpts}
           }
         });
       }, 5000);
-    });
+    }
+
+    document.getElementById("join-btn").addEventListener("click", () => startSession(null));
+
+    // Beim Start prüfen, ob eine laufende Tour vorhanden war -> sofort nahtlos fortsetzen!
+    (function checkAutoResumeOnLoad() {
+      try {
+        const raw = localStorage.getItem("gp_active_session");
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        // Sitzungen bis zu 18 Stunden automatisch wiederherstellen
+        if (saved && saved.active && saved.roomCode && (Date.now() - saved.savedAt < 18 * 3600 * 1000)) {
+          startSession(saved);
+        }
+      } catch (e) {}
+    })();
 
     document.getElementById("toggle-drawer").addEventListener("click", () => {
       document.getElementById("rider-drawer").classList.toggle("open");
@@ -3413,6 +3792,7 @@ ${trkpts}
           drawGroupRoute(pts, true);
           const compactPts = simplifyRoute(pts, 220);
           sharedRoutePoints = compactPts;
+          saveActiveSessionState();
           if (channel) {
             channel.send({
               type: "broadcast",
@@ -3425,36 +3805,6 @@ ${trkpts}
         }
       };
       reader.readAsText(file);
-    });
-
-    document.getElementById("btn-wake").addEventListener("click", async () => {
-      const btn = document.getElementById("btn-wake");
-      const label = document.getElementById("label-wake");
-
-      if (!("wakeLock" in navigator)) {
-        alert("Dein Browser unterstützt die automatische Display-Sperre nicht. Bitte stelle die Display-Zeit in den Handy-Einstellungen hoch.");
-        return;
-      }
-
-      if (wakeLock) {
-        await wakeLock.release();
-        wakeLock = null;
-        btn.classList.remove("active");
-        label.textContent = "Wach";
-      } else {
-        try {
-          wakeLock = await navigator.wakeLock.request("screen");
-          btn.classList.add("active");
-          label.textContent = "Aktiv";
-          wakeLock.addEventListener("release", () => {
-            wakeLock = null;
-            btn.classList.remove("active");
-            label.textContent = "Wach";
-          });
-        } catch (err) {
-          alert("Display-Sperre konnte nicht aktiviert werden.");
-        }
-      }
     });
   </script>
 </body>
