@@ -64,7 +64,7 @@
       left: -25%;
       width: 150%;
       height: 150%;
-      transition: transform 0.25s ease-out;
+      transition: transform 0.2s ease-out;
       transform-origin: center center;
     }
 
@@ -686,9 +686,7 @@
       gap: 6px;
     }
 
-    /* ==========================
-       FAHRER-PROFIL & TOUREN-ARCHIV MODAL
-       ========================== */
+    /* Fahrer-Profil & Touren-Archiv Modal */
     #profile-modal {
       position: fixed;
       inset: 0;
@@ -792,9 +790,7 @@
       gap: 6px;
     }
 
-    /* ==========================
-       KOMPASS ROSE (N O S W)
-       ========================== */
+    /* KOMPASS ROSE (N O S W) */
     #compass-widget {
       width: 48px;
       height: 48px;
@@ -815,7 +811,7 @@
       position: relative;
       width: 100%;
       height: 100%;
-      transition: transform 0.25s ease-out;
+      transition: transform 0.2s ease-out;
     }
 
     .c-dir {
@@ -1382,15 +1378,15 @@
       background: rgba(245, 158, 11, 0.18);
     }
 
-    /* Unteres Action-Dock (7 kompakte Buttons inkl. Profil) */
+    /* Unteres Action-Dock (7 Buttons inklusive Wach-Symbol) */
     #hud-bottom {
       position: fixed;
       bottom: max(12px, env(safe-area-inset-bottom));
-      left: 6px;
-      right: 6px;
+      left: 4px;
+      right: 4px;
       z-index: 500;
       display: none;
-      gap: 4px;
+      gap: 3px;
     }
 
     .dock-btn {
@@ -1400,14 +1396,14 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--glass-border);
-      border-radius: 15px;
-      padding: 9px 1px;
+      border-radius: 14px;
+      padding: 8px 1px;
       color: var(--text-main);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 3px;
       cursor: pointer;
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
@@ -1435,27 +1431,27 @@
     }
 
     .dock-btn svg {
-      width: 17px;
-      height: 17px;
+      width: 16px;
+      height: 16px;
       stroke-width: 2.2;
     }
 
     .dock-btn span {
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 700;
     }
 
     .unread-badge {
       position: absolute;
-      top: 4px;
-      right: 5px;
-      min-width: 15px;
-      height: 15px;
+      top: 3px;
+      right: 4px;
+      min-width: 14px;
+      height: 14px;
       padding: 0 3px;
       border-radius: 999px;
       background: var(--red);
       color: #fff;
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 900;
       display: none;
       align-items: center;
@@ -1649,7 +1645,7 @@
     <div class="login-card">
       <div class="brand-badge">🛡️ GravelPack Safety Pro</div>
       <h1>Group Ride Cockpit</h1>
-      <p>Mit Auto-Resume beim App-Wechsel, Touren-Profil, Sturz-Alarm, Nachzügler-Radar & N·O·S·W Kompass.</p>
+      <p>Mit Auto-Resume, Display-Wachmodus, drehbarer Karte, Sturz-Alarm & Touren-Profil.</p>
 
       <div class="input-group">
         <label for="rider-name">Dein Fahrername</label>
@@ -1743,7 +1739,7 @@
     <button class="mini-btn" style="padding: 10px 20px;">Schließen</button>
   </div>
 
-  <!-- Karte im drehbaren Viewport für N O S W Kompass -->
+  <!-- Karte im drehbaren Viewport -->
   <div id="map-viewport">
     <div id="map"></div>
   </div>
@@ -1808,7 +1804,7 @@
       </div>
     </div>
 
-    <!-- Aufzeichnungs-Steuerung (inkl. Speichern im Profil) -->
+    <!-- Aufzeichnungs-Steuerung -->
     <div id="rec-drawer">
       <div class="rec-header">
         <span id="rec-status-label">⏹️ Aufzeichnung bereit (<span>0</span> Punkte)</span>
@@ -1822,7 +1818,7 @@
       </div>
     </div>
 
-    <!-- Nachzügler-Warnung Banner -->
+    <!-- Banner -->
     <div class="alert-banner straggler-style" id="straggler-banner">
       <span id="straggler-text">⚠️ Nachzügler-Warnung</span>
       <div class="banner-actions">
@@ -1831,7 +1827,6 @@
       </div>
     </div>
 
-    <!-- Banner für Sammelpunkt / SOS-Pin -->
     <div class="alert-banner pin-style" id="pin-banner">
       <span id="pin-banner-text">📍 Treffpunkt gesetzt</span>
       <div class="banner-actions">
@@ -1840,34 +1835,30 @@
       </div>
     </div>
 
-    <!-- Banner für Gruppen-GPX-Sync -->
     <div class="alert-banner info-style" id="route-sync-banner">
       <span id="route-sync-text">🗺️ Neue Gruppen-Route geladen</span>
       <button class="banner-btn" style="background: rgba(0,0,0,0.75);" onclick="document.getElementById('route-sync-banner').classList.remove('show')">OK</button>
     </div>
 
-    <!-- Banner für neue Chat-Nachricht -->
     <div class="alert-banner chat-toast" id="chat-toast-banner">
       <span id="chat-toast-text">💬 Neue Nachricht</span>
       <button class="banner-btn" onclick="event.stopPropagation(); document.getElementById('chat-toast-banner').classList.remove('show')">✕</button>
     </div>
 
-    <!-- Banner für Pannen/Status/Sturz-Meldung -->
     <div class="alert-banner" id="rider-alert-banner">
       <span id="rider-alert-text">⚠️ Statusmeldung</span>
       <button class="banner-btn" onclick="document.getElementById('rider-alert-banner').classList.remove('show')">OK</button>
     </div>
 
-    <!-- Ausklappbare Fahrerliste & Ausloggen -->
     <div id="rider-drawer">
       <div id="rider-list-items"></div>
       <button class="logout-btn" id="btn-logout">🚪 Tour verlassen / Ausloggen</button>
     </div>
   </div>
 
-  <!-- Schwebende Seiten-Buttons (Kompass N O S W + Safety + Alle + Layer) -->
+  <!-- Schwebende Seiten-Buttons -->
   <div id="side-controls">
-    <div id="compass-widget" title="Kompass-Modus wechseln (N / O / S / W)">
+    <div id="compass-widget" title="Kompass-Modus wechseln (N / Drehen / Aus)">
       <div id="compass-dial">
         <span class="c-dir c-n">N</span>
         <span class="c-dir c-o">O</span>
@@ -1893,7 +1884,7 @@
     </button>
   </div>
 
-  <!-- Safety & N O S W Einstellungen Panel -->
+  <!-- Safety & Kompass Einstellungen Panel -->
   <div id="safety-panel">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <span style="font-size: 14px; font-weight: 800; color: var(--accent);">🛡️ Safety & N·O·S·W Kompass</span>
@@ -1902,8 +1893,8 @@
 
     <div class="safety-row">
       <div class="safety-label-col">
-        <strong>🧭 Kompass (N · O · S · W)</strong>
-        <span>Kartenausrichtung & Rose</span>
+        <strong>🧭 Kompass (Mitdrehen)</strong>
+        <span>Karte in Fahrtrichtung rotieren</span>
       </div>
       <div class="seg-group">
         <button class="seg-btn active" id="cmp-mode-north" onclick="setCompassMode('north')">Nord</button>
@@ -2002,7 +1993,7 @@
     </div>
   </div>
 
-  <!-- Unteres Action Dock (inkl. Profil-Button) -->
+  <!-- Unteres Action Dock (mit 7 Buttons inkl. Wach-Symbol ganz rechts) -->
   <div id="hud-bottom">
     <button class="dock-btn" id="btn-chat">
       <span class="unread-badge" id="chat-unread-badge">0</span>
@@ -2035,9 +2026,9 @@
       <span>Fokus</span>
     </button>
 
-    <button class="dock-btn" id="btn-profile">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span>Profil</span>
+    <button class="dock-btn" id="btn-wake" title="Display dauerhaft einschalten">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <span id="label-wake">Wach</span>
     </button>
   </div>
 
@@ -2053,7 +2044,6 @@
     const SUPABASE_KEY = "sb_publishable_-tOGnrHsuv8vSYI284PW-w_TvmzvQwN";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Beständige Fahrer-ID für nahtloses Wiederverbinden nach App-Wechsel
     let myId = localStorage.getItem("gp_rider_id");
     if (!myId) {
       myId = "rider_" + Math.random().toString(36).substring(2, 10);
@@ -2080,17 +2070,14 @@
     let meetingPinMarker = null;
     let meetingPinData = null;
 
-    // Chat & Photo Pins
     let chatOpen = false;
     let unreadCount = 0;
     let photoMarkers = [];
 
-    // Recording State
     let isRecording = false;
     let recordedTrack = [];
     let recordedPolyline = null;
 
-    // Planner & Turn-by-Turn Navi State
     let plannerMode = false;
     let planSnapToRoads = true;
     let planWaypoints = [];
@@ -2103,12 +2090,10 @@
     let navTargetRiderId = null;
     let lastRerouteTime = 0;
 
-    // Safety & Kompass Settings
     let compassMode = localStorage.getItem("gp_compass") || "north";
     let crashDetectEnabled = localStorage.getItem("gp_crash") !== "false";
     let stragglerLimitMeters = parseInt(localStorage.getItem("gp_straggler") || "500", 10);
 
-    // Crash-Detection & Straggler State
     let recentSpeeds = [];
     let lastMovementTime = Date.now();
     let crashCountdownTimer = null;
@@ -2146,7 +2131,7 @@
     }).addTo(map);
 
     // ==========================
-    // AUTO-RESUME / ZUSTAND SPEICHERN (BEI APP-WECHSEL ODER RELOAD)
+    // AUTO-RESUME STATE
     // ==========================
     function saveActiveSessionState() {
       if (!roomCode) return;
@@ -2157,7 +2142,7 @@
         myStatus,
         isRecording,
         totalDistanceMeters,
-        recordedTrack: recordedTrack.slice(-3000), // Bis zu 3000 GPS-Punkte lokal sichern
+        recordedTrack: recordedTrack.slice(-3000),
         sharedRoutePoints,
         meetingPinData,
         isNavigating,
@@ -2170,11 +2155,6 @@
       } catch (e) {}
     }
 
-    function clearActiveSessionState() {
-      localStorage.removeItem("gp_active_session");
-    }
-
-    // Beim Verlassen/Minimieren der App sofort Zustand sichern & beim Zurückkehren GPS/Live neu anstoßen
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
         saveActiveSessionState();
@@ -2272,7 +2252,6 @@
       document.getElementById("profile-modal").classList.remove("open");
 
       if (!roomCode) {
-        // Falls man noch auf dem Startbildschirm ist, direkt im Solo-Modus starten & Tour zeigen
         document.getElementById("rider-name").value = document.getElementById("rider-name").value.trim() || "Fahrer";
         document.getElementById("group-code").value = document.getElementById("group-code").value.trim() || "SOLO" + Math.floor(100 + Math.random() * 900);
         startSession(false);
@@ -2316,7 +2295,7 @@
     document.getElementById("btn-save-current-from-profile").addEventListener("click", saveCurrentTrackToProfile);
 
     // ==========================
-    // N · O · S · W KOMPASS & EINSTELLUNGEN
+    // N · O · S · W KOMPASS & MITDREHEN
     // ==========================
     function getCardinalText(deg) {
       const dirs = ["N", "NO", "O", "SO", "S", "SW", "W", "NW"];
@@ -2392,7 +2371,7 @@
     setStragglerLimit(stragglerLimitMeters);
 
     // ==========================
-    // STURZ-ERKENNUNG & SOS-NOTFALLKARTE
+    // STURZ-ERKENNUNG & SOS
     // ==========================
     function playAlarmBeep() {
       try {
@@ -2648,7 +2627,7 @@
     }
 
     // ==========================
-    // GRUPPEN-CHAT LOGIK
+    // CHAT
     // ==========================
     function toggleChatPanel(forceState) {
       chatOpen = typeof forceState === "boolean" ? forceState : !chatOpen;
@@ -2777,7 +2756,7 @@ ${trkpts}
     }
 
     // ==========================
-    // ROUTEN-PLANER & TURN-BY-TURN NAVI
+    // PLANER & NAVI
     // ==========================
     document.getElementById("btn-planner").addEventListener("click", () => {
       plannerMode = true;
@@ -3117,7 +3096,7 @@ ${trkpts}
     });
 
     // ==========================
-    // REC / AUFZEICHNUNG LOGIK
+    // REC / AUFZEICHNUNG
     // ==========================
     document.getElementById("btn-rec-menu").addEventListener("click", () => {
       document.getElementById("rec-drawer").classList.toggle("open");
@@ -3437,7 +3416,7 @@ ${trkpts}
     }
 
     // ==========================
-    // AUSLOGGEN / TOUR BEWUSST VERLASSEN
+    // AUSLOGGEN
     // ==========================
     document.getElementById("btn-logout").addEventListener("click", async () => {
       if (!confirm("Möchtest du die aktuelle Gruppen-Tour wirklich verlassen?")) return;
@@ -3501,6 +3480,8 @@ ${trkpts}
       document.getElementById("label-gpx").textContent = "GPX";
       document.getElementById("btn-status").classList.remove("alert-active");
       document.getElementById("label-status").textContent = "Status";
+      document.getElementById("btn-wake").classList.remove("active");
+      document.getElementById("label-wake").textContent = "Wach";
 
       document.getElementById("rider-drawer").classList.remove("open");
       document.getElementById("rec-drawer").classList.remove("open");
@@ -3520,7 +3501,7 @@ ${trkpts}
     });
 
     // ==========================
-    // TOUR STARTEN (MIT AUTO-RESUME)
+    // TOUR STARTEN
     // ==========================
     function startSession(restoredState = null) {
       const nameInput = restoredState ? restoredState.myName : document.getElementById("rider-name").value.trim();
@@ -3703,6 +3684,7 @@ ${trkpts}
               heading: pos.coords.heading
             };
 
+            // Hier wird die Karte live in Fahrtrichtung gedreht, wenn Kompass-Modus "Drehen" aktiv ist
             updateCompassOrientation(pos.coords.heading);
 
             if (meetingPinData) {
@@ -3747,13 +3729,11 @@ ${trkpts}
 
     document.getElementById("join-btn").addEventListener("click", () => startSession(null));
 
-    // Beim Start prüfen, ob eine laufende Tour vorhanden war -> sofort nahtlos fortsetzen!
     (function checkAutoResumeOnLoad() {
       try {
         const raw = localStorage.getItem("gp_active_session");
         if (!raw) return;
         const saved = JSON.parse(raw);
-        // Sitzungen bis zu 18 Stunden automatisch wiederherstellen
         if (saved && saved.active && saved.roomCode && (Date.now() - saved.savedAt < 18 * 3600 * 1000)) {
           startSession(saved);
         }
@@ -3806,6 +3786,40 @@ ${trkpts}
       };
       reader.readAsText(file);
     });
+
+    // ==========================
+    // WAKE LOCK (DISPLAY WACH HALTEN)
+    // ==========================
+    document.getElementById("btn-wake").addEventListener("click", async () => {
+      const btn = document.getElementById("btn-wake");
+      const label = document.getElementById("label-wake");
+
+      if (!("wakeLock" in navigator)) {
+        alert("Dein Browser unterstützt die automatische Display-Sperre nicht. Bitte stelle die Display-Zeit in den Handy-Einstellungen hoch.");
+        return;
+      }
+
+      if (wakeLock) {
+        try { await wakeLock.release(); } catch (e) {}
+        wakeLock = null;
+        btn.classList.remove("active");
+        label.textContent = "Wach";
+      } else {
+        try {
+          wakeLock = await navigator.wakeLock.request("screen");
+          btn.classList.add("active");
+          label.textContent = "Aktiv";
+          wakeLock.addEventListener("release", () => {
+            wakeLock = null;
+            btn.classList.remove("active");
+            label.textContent = "Wach";
+          });
+        } catch (err) {
+          alert("Display-Sperre konnte nicht aktiviert werden.");
+        }
+      }
+    });
   </script>
 </body>
 </html>
+```
