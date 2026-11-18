@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#060911" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>GravelPack — Ultra Navi & Group Cockpit</title>
+  <title>GravelPack — Ultra Safety & Group Cockpit</title>
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -14,8 +14,8 @@
   <style>
     :root {
       --bg-base: #060911;
-      --glass-bg: rgba(11, 17, 30, 0.80);
-      --glass-strong: rgba(11, 17, 30, 0.94);
+      --glass-bg: rgba(11, 17, 30, 0.82);
+      --glass-strong: rgba(11, 17, 30, 0.95);
       --glass-border: rgba(255, 255, 255, 0.13);
       --glass-highlight: rgba(255, 255, 255, 0.06);
       --accent: #f59e0b;
@@ -48,13 +48,24 @@
       user-select: none;
     }
 
-    #map {
+    #map-viewport {
       position: fixed;
       inset: 0;
       width: 100%;
       height: 100%;
       z-index: 1;
+      overflow: hidden;
       background: #0f172a;
+    }
+
+    #map {
+      position: absolute;
+      top: -25%;
+      left: -25%;
+      width: 150%;
+      height: 150%;
+      transition: transform 0.25s ease-out;
+      transform-origin: center center;
     }
 
     .leaflet-control-zoom, .leaflet-control-attribution {
@@ -79,7 +90,7 @@
     .login-card {
       width: 100%;
       max-width: 400px;
-      background: rgba(15, 23, 42, 0.84);
+      background: rgba(15, 23, 42, 0.86);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.14);
@@ -167,10 +178,6 @@
       box-shadow: 0 12px 28px -6px var(--accent-glow);
     }
 
-    .btn-primary:active {
-      transform: scale(0.98);
-    }
-
     /* Oberes Cockpit HUD */
     #hud-top {
       position: fixed;
@@ -200,13 +207,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
     }
 
     .room-trigger {
       display: flex;
       flex-direction: column;
       cursor: pointer;
+      min-width: 0;
     }
 
     .room-code {
@@ -222,26 +230,47 @@
       font-size: 11px;
       font-weight: 600;
       color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .hud-right-group {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .sos-top-btn {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);
+    }
+
+    .sos-top-btn:active {
+      transform: scale(0.94);
     }
 
     .rec-trigger-btn {
       background: rgba(239, 68, 68, 0.18);
       border: 1px solid rgba(239, 68, 68, 0.5);
       color: #fca5a5;
-      padding: 5px 10px;
+      padding: 5px 9px;
       border-radius: 999px;
       font-size: 11px;
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       font-variant-numeric: tabular-nums;
     }
 
@@ -278,12 +307,12 @@
     .pill {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       background: rgba(2, 6, 23, 0.65);
       border: 1px solid var(--glass-border);
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 999px;
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 800;
       letter-spacing: 0.05em;
     }
@@ -334,9 +363,7 @@
       letter-spacing: 0.05em;
     }
 
-    /* ==========================
-       TURN-BY-TURN NAVI BOX
-       ========================== */
+    /* Turn-by-Turn Navi Box */
     #active-navi-card {
       display: none;
       background: linear-gradient(135deg, rgba(6, 78, 59, 0.94) 0%, rgba(11, 17, 30, 0.95) 100%);
@@ -425,15 +452,15 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      background: rgba(239, 68, 68, 0.94);
+      background: rgba(239, 68, 68, 0.95);
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.28);
       color: #fff;
       padding: 9px 13px;
       border-radius: 16px;
       font-size: 12px;
       font-weight: 700;
-      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.45);
     }
 
     .alert-banner.pin-style {
@@ -445,6 +472,12 @@
       background: rgba(245, 158, 11, 0.95);
       color: #060911;
       box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
+    }
+
+    .alert-banner.straggler-style {
+      background: rgba(217, 119, 6, 0.95);
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(217, 119, 6, 0.45);
     }
 
     .alert-banner.chat-toast {
@@ -628,10 +661,6 @@
       flex-shrink: 0;
     }
 
-    .rider-nav-btn:active {
-      transform: scale(0.95);
-    }
-
     .logout-btn {
       width: 100%;
       background: rgba(239, 68, 68, 0.16);
@@ -649,8 +678,252 @@
     }
 
     /* ==========================
-       GRUPPEN-CHAT PANEL
+       KOMPASS ROSE (N O S W)
        ========================== */
+    #compass-widget {
+      width: 48px;
+      height: 48px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+    }
+
+    #compass-dial {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.25s ease-out;
+    }
+
+    .c-dir {
+      position: absolute;
+      font-size: 8.5px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .c-n { top: 4px; left: 50%; transform: translateX(-50%); color: #ef4444; }
+    .c-s { bottom: 4px; left: 50%; transform: translateX(-50%); color: #94a3b8; }
+    .c-o { right: 5px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    .c-w { left: 5px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+    .c-center-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    /* ==========================
+       SAFETY & KOMPASS EINSTELLUNGEN
+       ========================== */
+    #safety-panel {
+      position: fixed;
+      bottom: max(86px, calc(env(safe-area-inset-bottom) + 74px));
+      left: 10px;
+      right: 10px;
+      z-index: 630;
+      display: none;
+      flex-direction: column;
+      gap: 11px;
+      background: var(--glass-strong);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      border-radius: var(--radius-xl);
+      padding: 15px;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.85);
+    }
+
+    #safety-panel.open {
+      display: flex;
+    }
+
+    .safety-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--glass-highlight);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+
+    .safety-label-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .safety-label-col strong {
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .safety-label-col span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .seg-group {
+      display: flex;
+      gap: 4px;
+      background: rgba(2, 6, 23, 0.65);
+      padding: 3px;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .seg-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .seg-btn.active {
+      background: var(--accent);
+      color: #060911;
+    }
+
+    /* ==========================
+       STURZ-COUNTDOWN OVERLAY
+       ========================== */
+    #crash-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1500;
+      background: rgba(127, 29, 29, 0.94);
+      backdrop-filter: blur(18px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      gap: 16px;
+    }
+
+    #crash-modal.open {
+      display: flex;
+    }
+
+    .crash-ring {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 5px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      font-weight: 900;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.35);
+      animation: pulse 1s infinite;
+    }
+
+    .crash-ok-btn {
+      width: 100%;
+      max-width: 340px;
+      background: #10b981;
+      color: #060911;
+      border: none;
+      border-radius: 18px;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .crash-sos-now-btn {
+      width: 100%;
+      max-width: 340px;
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* ==========================
+       SOS NOTFALL-KARTE & 112 MODAL
+       ========================== */
+    #sos-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1400;
+      background: rgba(6, 9, 17, 0.92);
+      backdrop-filter: blur(18px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    #sos-modal.open {
+      display: flex;
+    }
+
+    .sos-card {
+      width: 100%;
+      max-width: 400px;
+      background: #111827;
+      border: 2px solid #ef4444;
+      border-radius: 26px;
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 25px 60px rgba(239, 68, 68, 0.35);
+    }
+
+    .sos-info-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      user-select: text;
+    }
+
+    .call-112-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #ef4444;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 14px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.45);
+    }
+
+    /* Gruppen-Chat Panel */
     #chat-panel {
       position: fixed;
       bottom: max(84px, calc(env(safe-area-inset-bottom) + 74px));
@@ -683,9 +956,6 @@
       font-size: 14px;
       font-weight: 800;
       color: var(--blue);
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     #chat-messages {
@@ -915,11 +1185,7 @@
       box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
     }
 
-    .start-navi-cta:active {
-      transform: scale(0.96);
-    }
-
-    /* Schwebende Seiten-Buttons */
+    /* Schwebende Seiten-Buttons (Kompass + Safety + Alle + Layer) */
     #side-controls {
       position: fixed;
       right: 12px;
@@ -927,7 +1193,8 @@
       z-index: 500;
       display: none;
       flex-direction: column;
-      gap: 9px;
+      align-items: center;
+      gap: 8px;
     }
 
     .fab-btn {
@@ -1006,7 +1273,7 @@
       background: rgba(245, 158, 11, 0.18);
     }
 
-    /* Unteres Action-Dock (6 kompakte Buttons inkl. Chat & Kamera) */
+    /* Unteres Action-Dock */
     #hud-bottom {
       position: fixed;
       bottom: max(12px, env(safe-area-inset-bottom));
@@ -1115,14 +1382,6 @@
       max-height: 74vh;
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.85);
-    }
-
-    #photo-modal-caption {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-main);
-      text-align: center;
     }
 
     /* Marker & Wegpunkte */
@@ -1150,7 +1409,7 @@
     }
 
     .marker-label.has-alert {
-      background: rgba(220, 38, 38, 0.95);
+      background: rgba(220, 38, 38, 0.96);
       border-color: #fff;
     }
 
@@ -1181,7 +1440,6 @@
       border-left: 6px solid transparent;
       border-right: 6px solid transparent;
       border-bottom: 9px solid #ffffff;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
     }
 
     .marker-pulse {
@@ -1223,7 +1481,6 @@
       border: 2.5px solid #38bdf8;
       object-fit: cover;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
-      background: #0f172a;
     }
 
     .photo-pin-tag {
@@ -1256,6 +1513,11 @@
       margin-bottom: 4px;
     }
 
+    .meeting-badge.sos-badge {
+      background: #dc2626;
+      animation: blink 1s infinite;
+    }
+
     .meeting-icon {
       font-size: 24px;
       filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
@@ -1276,9 +1538,9 @@
   <!-- Login Screen -->
   <div id="login-screen">
     <div class="login-card">
-      <div class="brand-badge">⚡ GravelPack Ultra</div>
+      <div class="brand-badge">🛡️ GravelPack Safety Pro</div>
       <h1>Group Ride Cockpit</h1>
-      <p>Turn-by-Turn Navi zu Orten & Kollegen, Kamera-Pins, Live-Chat & Tour-Aufzeichnung.</p>
+      <p>Sturz-Erkennung, Nachzügler-Radar, SOS-Rettungskarte, N·O·S·W Kompass & Turn-by-Turn Navi.</p>
 
       <div class="input-group">
         <label for="rider-name">Dein Fahrername</label>
@@ -1294,15 +1556,48 @@
     </div>
   </div>
 
+  <!-- Sturz-Countdown Vollbild-Warnung -->
+  <div id="crash-modal">
+    <div style="font-size: 15px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #fecaca;">⚠️ Sturz / Stillstand erkannt</div>
+    <h2 style="font-size: 28px; font-weight: 900;">Bist du okay?</h2>
+    <div class="crash-ring" id="crash-countdown-num">15</div>
+    <p style="font-size: 14px; color: #fee2e2; max-width: 320px; line-height: 1.45;">
+      Wenn du nicht reagierst, sendet die App automatisch ein <strong>SOS mit deinem GPS-Standort</strong> an deine Gruppe.
+    </p>
+    <button class="crash-ok-btn" id="btn-crash-ok">✅ Ich bin okay (Abbrechen)</button>
+    <button class="crash-sos-now-btn" id="btn-crash-sos-now">🚨 Sofort SOS an Gruppe senden</button>
+  </div>
+
+  <!-- SOS Notfall-Karte & 112 Modal -->
+  <div id="sos-modal">
+    <div class="sos-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size: 18px; font-weight: 900; color: #f87171;">🚨 NOTFALL-SOS AKTIV</span>
+        <button class="banner-btn" id="btn-close-sos-modal">✕</button>
+      </div>
+      <p style="font-size: 12px; color: #cbd5e1;">Deine Gruppe wurde über deinen Notfall-Standort alarmiert. Hier sind deine Daten für den Rettungsdienst:</p>
+      <div class="sos-info-box">
+        <div style="color: #94a3b8; font-size: 11px; font-weight: 700;">GPS-KOORDINATEN</div>
+        <div id="sos-coords-text" style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 8px;">Ermittle GPS...</div>
+        <div style="color: #94a3b8; font-size: 11px; font-weight: 700;">NÄCHSTER ORT / STRASSE</div>
+        <div id="sos-address-text" style="font-size: 13px; font-weight: 700; color: #fcd34d;">Suche Position...</div>
+      </div>
+      <a href="tel:112" class="call-112-btn">📞 NOTRUF 112 ANRUFEN</a>
+      <button class="mini-btn" id="btn-cancel-my-sos">✅ Entwarnung (SOS beenden)</button>
+    </div>
+  </div>
+
   <!-- Foto Vollbild-Ansicht -->
   <div id="photo-modal" onclick="this.classList.remove('open')">
     <img id="photo-modal-img" src="" alt="Tour Foto" />
-    <div id="photo-modal-caption"></div>
+    <div id="photo-modal-caption" style="font-size: 14px; font-weight: 700;"></div>
     <button class="mini-btn" style="padding: 10px 20px;">Schließen</button>
   </div>
 
-  <!-- Karte -->
-  <div id="map"></div>
+  <!-- Karte im drehbaren Viewport für N O S W Kompass -->
+  <div id="map-viewport">
+    <div id="map"></div>
+  </div>
 
   <!-- Oberes HUD -->
   <div id="hud-top">
@@ -1313,10 +1608,12 @@
             <span id="display-room">#GRVL</span>
             <span style="font-size: 11px; opacity: 0.7;">▼</span>
           </div>
-          <div class="rider-count" id="display-count">1 Fahrer aktiv · Ziele & Menü</div>
+          <div class="rider-count" id="display-count">1 Fahrer · Menü</div>
         </div>
 
         <div class="hud-right-group">
+          <button class="sos-top-btn" id="btn-sos-trigger">🚨 SOS</button>
+
           <button class="rec-trigger-btn stopped" id="btn-rec-menu" title="Aufzeichnung starten / exportieren">
             <span class="rec-dot"></span>
             <span id="rec-badge-text">REC AUS</span>
@@ -1346,7 +1643,7 @@
       </div>
     </div>
 
-    <!-- Turn-by-Turn Navi-Anzeige (erscheint nach Drücken auf "Start") -->
+    <!-- Turn-by-Turn Navi-Anzeige -->
     <div id="active-navi-card">
       <div class="navi-main-row">
         <div class="navi-turn-icon" id="navi-icon">⬆️</div>
@@ -1362,7 +1659,7 @@
       </div>
     </div>
 
-    <!-- Aufzeichnungs-Steuerung (REC Drawer - Startet jetzt händisch!) -->
+    <!-- Aufzeichnungs-Steuerung (Händischer Start) -->
     <div id="rec-drawer">
       <div class="rec-header">
         <span id="rec-status-label">⏹️ Aufzeichnung bereit (<span>0</span> Punkte)</span>
@@ -1375,7 +1672,16 @@
       </div>
     </div>
 
-    <!-- Banner für Sammelpunkt -->
+    <!-- Nachzügler-Warnung Banner -->
+    <div class="alert-banner straggler-style" id="straggler-banner">
+      <span id="straggler-text">⚠️ Nachzügler-Warnung</span>
+      <div class="banner-actions">
+        <button class="banner-btn" id="btn-nav-straggler">🧭 Hin</button>
+        <button class="banner-btn" onclick="document.getElementById('straggler-banner').classList.remove('show')">OK</button>
+      </div>
+    </div>
+
+    <!-- Banner für Sammelpunkt / SOS-Pin -->
     <div class="alert-banner pin-style" id="pin-banner">
       <span id="pin-banner-text">📍 Treffpunkt gesetzt</span>
       <div class="banner-actions">
@@ -1396,21 +1702,38 @@
       <button class="banner-btn" onclick="event.stopPropagation(); document.getElementById('chat-toast-banner').classList.remove('show')">✕</button>
     </div>
 
-    <!-- Banner für Pannen/Status-Meldung -->
+    <!-- Banner für Pannen/Status/Sturz-Meldung -->
     <div class="alert-banner" id="rider-alert-banner">
       <span id="rider-alert-text">⚠️ Statusmeldung</span>
       <button class="banner-btn" onclick="document.getElementById('rider-alert-banner').classList.remove('show')">OK</button>
     </div>
 
-    <!-- Ausklappbare Fahrerliste (mit Ziel-Navi zu Kollegen!) & Ausloggen -->
+    <!-- Ausklappbare Fahrerliste & Ausloggen -->
     <div id="rider-drawer">
       <div id="rider-list-items"></div>
       <button class="logout-btn" id="btn-logout">🚪 Tour verlassen / Ausloggen</button>
     </div>
   </div>
 
-  <!-- Schwebende Seiten-Buttons -->
+  <!-- Schwebende Seiten-Buttons (Kompass N O S W + Safety + Alle + Layer) -->
   <div id="side-controls">
+    <!-- Einstellbarer N O S W Kompass -->
+    <div id="compass-widget" title="Kompass-Modus wechseln (N / O / S / W)">
+      <div id="compass-dial">
+        <span class="c-dir c-n">N</span>
+        <span class="c-dir c-o">O</span>
+        <span class="c-dir c-s">S</span>
+        <span class="c-dir c-w">W</span>
+        <span class="c-center-dot" id="compass-dir-label">N</span>
+      </div>
+    </div>
+
+    <!-- Safety & Kompass Settings -->
+    <button class="fab-btn" id="btn-safety-settings" title="Safety & Kompass einstellen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Safety</span>
+    </button>
+
     <button class="fab-btn" id="btn-fit-all" title="Alle Fahrer zeigen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span>Alle</span>
@@ -1420,6 +1743,50 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
       <span id="layer-label">Topo</span>
     </button>
+  </div>
+
+  <!-- Safety & N O S W Einstellungen Panel -->
+  <div id="safety-panel">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size: 14px; font-weight: 800; color: var(--accent);">🛡️ Safety & N·O·S·W Kompass</span>
+      <button class="banner-btn" onclick="document.getElementById('safety-panel').classList.remove('open')">✕</button>
+    </div>
+
+    <div class="safety-row">
+      <div class="safety-label-col">
+        <strong>🧭 Kompass (N · O · S · W)</strong>
+        <span>Kartenausrichtung & Rose</span>
+      </div>
+      <div class="seg-group">
+        <button class="seg-btn active" id="cmp-mode-north" onclick="setCompassMode('north')">Nord</button>
+        <button class="seg-btn" id="cmp-mode-heading" onclick="setCompassMode('heading')">Drehen</button>
+        <button class="seg-btn" id="cmp-mode-off" onclick="setCompassMode('off')">Aus</button>
+      </div>
+    </div>
+
+    <div class="safety-row">
+      <div class="safety-label-col">
+        <strong>🚨 Sturz-Erkennung</strong>
+        <span>Auto-SOS bei abruptem Stopp</span>
+      </div>
+      <div class="seg-group">
+        <button class="seg-btn active" id="crash-on-btn" onclick="setCrashDetect(true)">An</button>
+        <button class="seg-btn" id="crash-off-btn" onclick="setCrashDetect(false)">Aus</button>
+      </div>
+    </div>
+
+    <div class="safety-row">
+      <div class="safety-label-col">
+        <strong>📏 Nachzügler-Alarm</strong>
+        <span>Warnung bei zu großem Abstand</span>
+      </div>
+      <div class="seg-group">
+        <button class="seg-btn" id="strag-0" onclick="setStragglerLimit(0)">Aus</button>
+        <button class="seg-btn" id="strag-250" onclick="setStragglerLimit(250)">250m</button>
+        <button class="seg-btn active" id="strag-500" onclick="setStragglerLimit(500)">500m</button>
+        <button class="seg-btn" id="strag-1000" onclick="setStragglerLimit(1000)">1km</button>
+      </div>
+    </div>
   </div>
 
   <!-- Gruppen-Chat Panel -->
@@ -1477,7 +1844,7 @@
       <button class="mini-btn" id="btn-plan-mode">🛣️ Wege</button>
       <button class="mini-btn" id="btn-plan-undo">↶ Zurück</button>
       <button class="mini-btn danger" id="btn-plan-clear">🗑️ Neu</button>
-      <button class="mini-btn" id="btn-plan-save">⬇ GPX</button>
+      <button class="mini-btn green" id="btn-plan-save">⬇ GPX</button>
     </div>
 
     <div class="planner-bottom-row">
@@ -1487,7 +1854,7 @@
     </div>
   </div>
 
-  <!-- Unteres Action Dock (7 schlanke Buttons inkl. Chat & Kamera) -->
+  <!-- Unteres Action Dock -->
   <div id="hud-bottom">
     <button class="dock-btn" id="btn-chat">
       <span class="unread-badge" id="chat-unread-badge">0</span>
@@ -1563,7 +1930,7 @@
     let unreadCount = 0;
     let photoMarkers = [];
 
-    // Recording State (JETZT STANDARDMÄSSIG AUS -> Händischer Start!)
+    // Recording State (Händisch starten)
     let isRecording = false;
     let recordedTrack = [];
     let recordedPolyline = null;
@@ -1580,6 +1947,20 @@
     let isNavigating = false;
     let navTargetRiderId = null;
     let lastRerouteTime = 0;
+
+    // Safety & Kompass Settings (mit LocalStorage-Speicherung)
+    let compassMode = localStorage.getItem("gp_compass") || "north"; // 'north' | 'heading' | 'off'
+    let crashDetectEnabled = localStorage.getItem("gp_crash") !== "false";
+    let stragglerLimitMeters = parseInt(localStorage.getItem("gp_straggler") || "500", 10);
+
+    // Crash-Detection & Straggler State
+    let recentSpeeds = [];
+    let lastMovementTime = Date.now();
+    let crashCountdownTimer = null;
+    let crashCountdownVal = 15;
+    let crashAlertActive = false;
+    let lastStragglerAlertTime = 0;
+    let currentStragglerId = null;
 
     const riders = {};
 
@@ -1608,6 +1989,211 @@
       weight: 6,
       opacity: 0.95
     }).addTo(map);
+
+    // ==========================
+    // N · O · S · W KOMPASS & EINSTELLUNGEN
+    // ==========================
+    function getCardinalText(deg) {
+      const dirs = ["N", "NO", "O", "SO", "S", "SW", "W", "NW"];
+      return dirs[Math.round(deg / 45) % 8];
+    }
+
+    window.setCompassMode = function(mode) {
+      compassMode = mode;
+      localStorage.setItem("gp_compass", mode);
+
+      document.getElementById("cmp-mode-north").classList.toggle("active", mode === "north");
+      document.getElementById("cmp-mode-heading").classList.toggle("active", mode === "heading");
+      document.getElementById("cmp-mode-off").classList.toggle("active", mode === "off");
+
+      const widget = document.getElementById("compass-widget");
+      widget.style.display = mode === "off" ? "none" : "flex";
+
+      if (mode !== "heading") {
+        document.getElementById("map").style.transform = "rotate(0deg)";
+        document.getElementById("compass-dial").style.transform = "rotate(0deg)";
+        document.getElementById("compass-dir-label").textContent = "N";
+      } else if (myPos && typeof myPos.heading === "number" && !isNaN(myPos.heading)) {
+        updateCompassOrientation(myPos.heading);
+      }
+    };
+
+    function updateCompassOrientation(headingDeg) {
+      if (compassMode === "off") return;
+      const validHeading = typeof headingDeg === "number" && !isNaN(headingDeg) ? headingDeg : 0;
+      document.getElementById("compass-dir-label").textContent = getCardinalText(validHeading);
+
+      if (compassMode === "heading") {
+        document.getElementById("map").style.transform = `rotate(${-validHeading}deg)`;
+        document.getElementById("compass-dial").style.transform = `rotate(${-validHeading}deg)`;
+      } else {
+        document.getElementById("map").style.transform = "rotate(0deg)";
+        document.getElementById("compass-dial").style.transform = "rotate(0deg)";
+      }
+    }
+
+    document.getElementById("compass-widget").addEventListener("click", () => {
+      const next = compassMode === "north" ? "heading" : "north";
+      setCompassMode(next);
+    });
+
+    window.setCrashDetect = function(enabled) {
+      crashDetectEnabled = enabled;
+      localStorage.setItem("gp_crash", String(enabled));
+      document.getElementById("crash-on-btn").classList.toggle("active", enabled);
+      document.getElementById("crash-off-btn").classList.toggle("active", !enabled);
+    };
+
+    window.setStragglerLimit = function(meters) {
+      stragglerLimitMeters = meters;
+      localStorage.setItem("gp_straggler", String(meters));
+      [0, 250, 500, 1000].forEach(val => {
+        const el = document.getElementById(`strag-${val}`);
+        if (el) el.classList.toggle("active", val === meters);
+      });
+      if (meters === 0) {
+        document.getElementById("straggler-banner").classList.remove("show");
+      }
+    };
+
+    document.getElementById("btn-safety-settings").addEventListener("click", () => {
+      toggleChatPanel(false);
+      document.getElementById("status-menu").classList.remove("open");
+      document.getElementById("safety-panel").classList.toggle("open");
+    });
+
+    // Gespeicherte Safety- & Kompass-Werte initial anwenden
+    setCompassMode(compassMode);
+    setCrashDetect(crashDetectEnabled);
+    setStragglerLimit(stragglerLimitMeters);
+
+    // ==========================
+    // STURZ-ERKENNUNG & SOS-NOTFALLKARTE
+    // ==========================
+    function playAlarmBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.25);
+      } catch (e) {}
+    }
+
+    function triggerCrashCountdown() {
+      if (crashAlertActive || !crashDetectEnabled) return;
+      crashAlertActive = true;
+      crashCountdownVal = 15;
+      document.getElementById("crash-countdown-num").textContent = crashCountdownVal;
+      document.getElementById("crash-modal").classList.add("open");
+      playAlarmBeep();
+
+      crashCountdownTimer = setInterval(() => {
+        crashCountdownVal--;
+        document.getElementById("crash-countdown-num").textContent = Math.max(0, crashCountdownVal);
+        if (crashCountdownVal > 0 && crashCountdownVal <= 5) playAlarmBeep();
+
+        if (crashCountdownVal <= 0) {
+          clearInterval(crashCountdownTimer);
+          crashCountdownTimer = null;
+          document.getElementById("crash-modal").classList.remove("open");
+          activateEmergencySOS(true);
+        }
+      }, 1000);
+    }
+
+    function cancelCrashCountdown() {
+      crashAlertActive = false;
+      if (crashCountdownTimer) {
+        clearInterval(crashCountdownTimer);
+        crashCountdownTimer = null;
+      }
+      document.getElementById("crash-modal").classList.remove("open");
+      lastMovementTime = Date.now();
+    }
+
+    document.getElementById("btn-crash-ok").addEventListener("click", cancelCrashCountdown);
+    document.getElementById("btn-crash-sos-now").addEventListener("click", () => {
+      cancelCrashCountdown();
+      activateEmergencySOS(true);
+    });
+
+    async function activateEmergencySOS(isAutoCrash = false) {
+      const reasonText = isAutoCrash ? "🚨 AUTO-SOS: Sturz / Stillstand!" : "🚨 NOTFALL-SOS!";
+      setMyStatus(reasonText);
+
+      // Notfall-Pin auf der Karte für alle setzen
+      if (myPos) {
+        setMeetingPin({ lat: myPos.lat, lng: myPos.lng, by: `${myName} (SOS)`, isSos: true }, true);
+        document.getElementById("sos-coords-text").textContent = `${myPos.lat.toFixed(6)}, ${myPos.lng.toFixed(6)}`;
+
+        // Nächste Adresse für 112-Rettungskette ermitteln
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${myPos.lat}&lon=${myPos.lng}`, {
+            headers: { "Accept-Language": "de" }
+          });
+          const data = await res.json();
+          document.getElementById("sos-address-text").textContent = data.display_name || "Unbekannter Wald-/Feldweg";
+        } catch (e) {
+          document.getElementById("sos-address-text").textContent = "Offline (Koordinaten oben durchgeben)";
+        }
+      } else {
+        document.getElementById("sos-coords-text").textContent = "Kein GPS-Signal";
+        document.getElementById("sos-address-text").textContent = "Bitte Standort beschreiben";
+      }
+
+      document.getElementById("sos-modal").classList.add("open");
+    }
+
+    document.getElementById("btn-sos-trigger").addEventListener("click", () => activateEmergencySOS(false));
+    document.getElementById("btn-close-sos-modal").addEventListener("click", () => {
+      document.getElementById("sos-modal").classList.remove("open");
+    });
+    document.getElementById("btn-cancel-my-sos").addEventListener("click", () => {
+      setMyStatus("");
+      clearMeetingPin(true);
+      document.getElementById("sos-modal").classList.remove("open");
+    });
+
+    // Nachzügler-Prüfung
+    function checkStragglers() {
+      if (!myPos || stragglerLimitMeters <= 0) return;
+      const otherIds = Object.keys(riders).filter(id => id !== myId);
+      if (otherIds.length === 0) return;
+
+      let furthestRider = null;
+      let maxDist = 0;
+
+      otherIds.forEach(id => {
+        const r = riders[id];
+        const d = getMeters(myPos.lat, myPos.lng, r.lat, r.lng);
+        if (d > maxDist) {
+          maxDist = d;
+          furthestRider = { id, ...r, dist: d };
+        }
+      });
+
+      if (furthestRider && furthestRider.dist > stragglerLimitMeters) {
+        if (Date.now() - lastStragglerAlertTime > 45000) {
+          lastStragglerAlertTime = Date.now();
+          currentStragglerId = furthestRider.id;
+          document.getElementById("straggler-text").textContent = `⚠️ ${furthestRider.name} ist ${formatDist(furthestRider.dist)} entfernt!`;
+          document.getElementById("straggler-banner").classList.add("show");
+        }
+      } else {
+        document.getElementById("straggler-banner").classList.remove("show");
+      }
+    }
+
+    document.getElementById("btn-nav-straggler").addEventListener("click", () => {
+      document.getElementById("straggler-banner").classList.remove("show");
+      if (currentStragglerId) selectRiderAsDestination(currentStragglerId);
+    });
 
     document.getElementById("btn-layer").addEventListener("click", () => {
       map.removeLayer(baseLayers[currentLayerIdx].layer);
@@ -1668,7 +2254,6 @@
       reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
-          // Bild auf handliche Größe für schnellen Live-Transfer verkleinern
           const maxDim = 560;
           let w = img.width;
           let h = img.height;
@@ -1712,7 +2297,6 @@
     });
 
     function handleIncomingPhoto(payload) {
-      // 1. Im Gruppen-Chat anzeigen
       appendChatMessage({
         senderId: payload.senderId,
         senderName: payload.senderName,
@@ -1722,7 +2306,6 @@
         time: payload.time
       });
 
-      // 2. Falls GPS-Standort vorhanden: Foto-Pin auf der Karte setzen
       if (typeof payload.lat === "number" && typeof payload.lng === "number") {
         const caption = `📸 Foto von ${payload.senderName} (${payload.time})`;
         const icon = L.divIcon({
@@ -1752,6 +2335,7 @@
       document.getElementById("btn-chat").classList.toggle("chat-active", chatOpen);
       if (chatOpen) {
         document.getElementById("status-menu").classList.remove("open");
+        document.getElementById("safety-panel").classList.remove("open");
         document.getElementById("chat-toast-banner").classList.remove("show");
         unreadCount = 0;
         const badge = document.getElementById("chat-unread-badge");
@@ -1846,7 +2430,7 @@
       }).join("\n");
 
       const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="GravelPack Ultra" xmlns="http://www.topografix.com/GPX/1/1">
+<gpx version="1.1" creator="GravelPack Safety Pro" xmlns="http://www.topografix.com/GPX/1/1">
   <metadata>
     <name>${routeTitle}</name>
     <time>${nowIso}</time>
@@ -1872,11 +2456,12 @@ ${trkpts}
     }
 
     // ==========================
-    // ROUTEN-PLANER, GRUPPENZIEL & TURN-BY-TURN NAVI
+    // ROUTEN-PLANER & TURN-BY-TURN NAVI
     // ==========================
     document.getElementById("btn-planner").addEventListener("click", () => {
       plannerMode = true;
       toggleChatPanel(false);
+      document.getElementById("safety-panel").classList.remove("open");
       document.getElementById("hud-bottom").style.display = "none";
       document.getElementById("planner-panel").classList.add("open");
       document.getElementById("status-menu").classList.remove("open");
@@ -1894,7 +2479,6 @@ ${trkpts}
       recalculatePlannedRoute(false);
     });
 
-    // Gruppenmitglied direkt als Ziel auswählen & Route berechnen
     window.selectRiderAsDestination = async function(riderId) {
       const target = riders[riderId];
       if (!target) return;
@@ -2032,7 +2616,6 @@ ${trkpts}
           planRouteCoords = json.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
           planPolyline.setLatLngs(planRouteCoords);
 
-          // Turn-by-Turn Schritte extrahieren
           planSteps = [];
           if (json.routes[0].legs) {
             json.routes[0].legs.forEach(leg => {
@@ -2074,9 +2657,6 @@ ${trkpts}
       }
     }
 
-    // ==========================
-    // AKTIVE TURN-BY-TURN NAVIGATION ("START")
-    // ==========================
     function getManeuverInfo(step) {
       if (!step) return { icon: "⬆️", text: "Geradeaus folgen" };
       if (step.type === "arrive") return { icon: "🏁", text: "Ziel erreicht!" };
@@ -2134,7 +2714,6 @@ ${trkpts}
         ? getMeters(myPos.lat, myPos.lng, destCoord[0], destCoord[1])
         : calcPolylineLength(planRouteCoords);
 
-      // ETA bei ca. 18 km/h Gravel-Tempo
       const minsLeft = Math.max(1, Math.round((remMeters / 1000) / 18 * 60));
       const etaDate = new Date(Date.now() + minsLeft * 60000);
       const etaStr = `${String(etaDate.getHours()).padStart(2, "0")}:${String(etaDate.getMinutes()).padStart(2, "0")}`;
@@ -2147,9 +2726,7 @@ ${trkpts}
         return;
       }
 
-      // Nächsten Abbiegepunkt vor uns suchen
       if (myPos && planSteps.length > 0) {
-        // Bereits passierte Manöverpunkte am Anfang entfernen
         while (planSteps.length > 1 && getMeters(myPos.lat, myPos.lng, planSteps[0].lat, planSteps[0].lng) < 22) {
           planSteps.shift();
         }
@@ -2248,7 +2825,6 @@ ${trkpts}
     document.getElementById("btn-rec-toggle").addEventListener("click", () => {
       isRecording = !isRecording;
       if (isRecording && myPos) {
-        // Sofort aktuellen Punkt als Startpunkt setzen
         lastTrackPos = { lat: myPos.lat, lng: myPos.lng };
         recordedTrack.push({
           lat: myPos.lat,
@@ -2283,13 +2859,13 @@ ${trkpts}
     });
 
     // ==========================
-    // SAMMELPUNKT (LONG-PRESS)
+    // SAMMELPUNKT & SOS-PIN
     // ==========================
     let pressTimer = null;
     map.on("mousedown touchstart", (e) => {
       if (!channel || plannerMode) return;
       pressTimer = setTimeout(() => {
-        setMeetingPin({ lat: e.latlng.lat, lng: e.latlng.lng, by: myName }, true);
+        setMeetingPin({ lat: e.latlng.lat, lng: e.latlng.lng, by: myName, isSos: false }, true);
       }, 750);
     });
 
@@ -2302,12 +2878,13 @@ ${trkpts}
       if (meetingPinMarker) map.removeLayer(meetingPinMarker);
 
       const distInfo = myPos ? ` (${formatDist(getMeters(myPos.lat, myPos.lng, data.lat, data.lng))})` : "";
+      const prefix = data.isSos ? "🚨 SOS" : "📍 Treffpunkt";
       const icon = L.divIcon({
         className: "",
         html: `
           <div class="meeting-pin">
-            <div class="meeting-badge">📍 Treffpunkt (${data.by})${distInfo}</div>
-            <div class="meeting-icon">📍</div>
+            <div class="meeting-badge ${data.isSos ? 'sos-badge' : ''}">${prefix} (${escapeHtml(data.by)})${distInfo}</div>
+            <div class="meeting-icon">${data.isSos ? "🚨" : "📍"}</div>
           </div>
         `,
         iconSize: [0, 0],
@@ -2315,8 +2892,10 @@ ${trkpts}
       });
 
       meetingPinMarker = L.marker([data.lat, data.lng], { icon }).addTo(map);
-      document.getElementById("pin-banner-text").textContent = `📍 Treffpunkt (${data.by})${distInfo}`;
-      document.getElementById("pin-banner").classList.add("show");
+      const bannerEl = document.getElementById("pin-banner");
+      bannerEl.classList.toggle("pin-style", !data.isSos);
+      document.getElementById("pin-banner-text").textContent = `${prefix} (${data.by})${distInfo}`;
+      bannerEl.classList.add("show");
 
       if (broadcast && channel) {
         channel.send({ type: "broadcast", event: "pin", payload: data });
@@ -2341,7 +2920,7 @@ ${trkpts}
       if (!meetingPinData) return;
       const startPos = myPos || { lat: map.getCenter().lat, lng: map.getCenter().lng };
       navTargetRiderId = null;
-      planTargetLabel = `Treffpunkt (${meetingPinData.by})`;
+      planTargetLabel = `${meetingPinData.isSos ? "SOS" : "Treffpunkt"} (${meetingPinData.by})`;
       planWaypoints.forEach(wp => map.removeLayer(wp.marker));
       planWaypoints = [];
       addPlanWaypoint(startPos.lat, startPos.lng, false);
@@ -2425,7 +3004,6 @@ ${trkpts}
 
       riders[id] = { ...riders[id], ...data, updatedAt: Date.now() };
 
-      // Wenn wir aktiv zu diesem Kollegen navigieren, Route alle 10 Sek. auf seinen neuen Standort aktualisieren
       if (isNavigating && navTargetRiderId === id && myPos && Date.now() - lastRerouteTime > 10000) {
         lastRerouteTime = Date.now();
         planWaypoints.forEach(wp => map.removeLayer(wp.marker));
@@ -2441,12 +3019,13 @@ ${trkpts}
       }
 
       renderRiderList();
+      checkStragglers();
     }
 
     function renderRiderList() {
       const listContainer = document.getElementById("rider-list-items");
       const ids = Object.keys(riders);
-      document.getElementById("display-count").textContent = `${ids.length} Fahrer aktiv · Ziele & Menü`;
+      document.getElementById("display-count").textContent = `${ids.length} Fahrer · Menü`;
 
       listContainer.innerHTML = ids.map(id => {
         const r = riders[id];
@@ -2492,6 +3071,7 @@ ${trkpts}
 
     document.getElementById("btn-status").addEventListener("click", () => {
       toggleChatPanel(false);
+      document.getElementById("safety-panel").classList.remove("open");
       document.getElementById("status-menu").classList.toggle("open");
     });
 
@@ -2531,6 +3111,8 @@ ${trkpts}
     // ==========================
     document.getElementById("btn-logout").addEventListener("click", async () => {
       if (!confirm("Möchtest du die aktuelle Gruppen-Tour wirklich verlassen?")) return;
+
+      cancelCrashCountdown();
 
       if (channel) {
         await channel.send({ type: "broadcast", event: "leave", payload: { id: myId } });
@@ -2593,8 +3175,11 @@ ${trkpts}
       document.getElementById("rider-drawer").classList.remove("open");
       document.getElementById("rec-drawer").classList.remove("open");
       document.getElementById("status-menu").classList.remove("open");
+      document.getElementById("safety-panel").classList.remove("open");
       document.getElementById("planner-panel").classList.remove("open");
+      document.getElementById("sos-modal").classList.remove("open");
       document.getElementById("rider-alert-banner").classList.remove("show");
+      document.getElementById("straggler-banner").classList.remove("show");
       document.getElementById("route-sync-banner").classList.remove("show");
       document.getElementById("chat-toast-banner").classList.remove("show");
 
@@ -2620,6 +3205,8 @@ ${trkpts}
       localStorage.setItem("gp_room", roomCode);
 
       isRecording = false;
+      recentSpeeds = [];
+      lastMovementTime = Date.now();
       updateRecUI();
 
       document.getElementById("display-room").textContent = `#${roomCode}`;
@@ -2697,12 +3284,23 @@ ${trkpts}
             const kmh = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
             document.getElementById("speed-val").textContent = kmh;
 
+            // Sturz-Erkennung: Abrupter Geschwindigkeitsabfall (>15 km/h -> 0 km/h)
+            recentSpeeds.push({ speed: kmh, time: Date.now() });
+            if (recentSpeeds.length > 6) recentSpeeds.shift();
+            const maxRecent = Math.max(...recentSpeeds.map(s => s.speed));
+
+            if (kmh > 3) {
+              lastMovementTime = Date.now();
+            } else if (crashDetectEnabled && !crashAlertActive && maxRecent >= 16 && kmh === 0) {
+              recentSpeeds = [];
+              triggerCrashCountdown();
+            }
+
             const alt = typeof pos.coords.altitude === "number" && !isNaN(pos.coords.altitude) ? pos.coords.altitude : null;
             if (alt !== null) {
               document.getElementById("alt-val").textContent = Math.round(alt);
             }
 
-            // Nur aufzeichnen, wenn händisch auf "Start" gedrückt wurde!
             if (isRecording && (!pos.coords.accuracy || pos.coords.accuracy < 50)) {
               if (lastTrackPos) {
                 const moved = getMeters(lastTrackPos.lat, lastTrackPos.lng, pos.coords.latitude, pos.coords.longitude);
@@ -2741,6 +3339,8 @@ ${trkpts}
               heading: pos.coords.heading
             };
 
+            updateCompassOrientation(pos.coords.heading);
+
             if (meetingPinData) {
               setMeetingPin(meetingPinData, false);
             }
@@ -2763,6 +3363,13 @@ ${trkpts}
 
       heartbeatTimer = setInterval(() => {
         broadcastPosition();
+        checkStragglers();
+
+        // Stillstands-Wächter bei aktiver Aufzeichnung (über 60 Sek. ohne Bewegung)
+        if (isRecording && crashDetectEnabled && !crashAlertActive && Date.now() - lastMovementTime > 60000) {
+          triggerCrashCountdown();
+        }
+
         const now = Date.now();
         Object.keys(riders).forEach(id => {
           if (id !== myId && now - riders[id].updatedAt > 60000) {
